@@ -14,8 +14,8 @@
   <!-- <arg name="world_name" default="$(find nexus_gazebo)/worlds/nexus_4wd_mecanum.world" /> -->
   <!-- <node pkg="tf" type="static_transform_publisher" name="map_to_base_link" args="0 0 0 0 0.0 0 laser_frame scandx 1000" /> -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <!-- <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/robocon.world"/> -->
-   <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/turtlebot3_ar.world"/>
+    <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/navi_mirror.world"/>
+   <!-- <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/turtlebot3_ar.world"/> -->
     <!-- <arg name="world_name" value="$(find aruco_navigation)/worlds/bot_world.world"/>  -->
     <arg name="debug" value="0" />
     <arg name="gui" value="$(arg gui)" />
@@ -31,5 +31,5 @@
   <!-- Spawn the robot -->
 <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
         args="-urdf -model nexus_4wd_mecanum -param robot_description -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -Y $(arg yaw)" />
-
+ <node name="rviz" pkg="rviz" type="rviz" args="-d $(find nexus_4wd_mecanum_gazebo)/navi_scan.rviz" required="true" />
 </launch>
