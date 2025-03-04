@@ -1,0 +1,42 @@
+global_costmap:
+  global_frame: map
+  robot_base_frame: base_link
+
+  update_frequency: 5.0
+  publish_frequency: 2.5
+  transform_tolerance: 0.6
+  width: 50.0  # Chiều rộng của costmap (m)
+  height: 50.0 # Chiều cao của costmap (m)
+  
+  origin_x: -25.0  # Điểm gốc của costmap (m)
+  origin_y: -25.0  # Điểm gốc của costmap (m)
+  resolution: 0.05
+  inflation_radius: 0.15
+  cost_scaling_factor: 10.0
+  static_map: true
+  plugins:
+    - {name: static_layer,            type: "costmap_2d::StaticLayer"}
+    - {name: restricted_layer,        type: "restrict_area::RestrictedLayer"}
+    - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}
+    - {name: inflation_layer,         type: "costmap_2d::InflationLayer"}
+  # restricted_layer:
+  #   enabled: true
+  obstacle_layer:
+    enabled: true
+    obstacle_range: 5.5  # Phạm vi tối đa để phát hiện vật cản
+    raytrace_range: 6.5  # Phạm vi tối đa cho việc dò tìm
+    max_obstacle_height: 2.0  # Chiều cao tối đa để phát hiện vật cản
+    track_unknown_space: true
+  inflation_layer:
+    enabled:              true
+    cost_scaling_factor:  10.0  # exponential rate at which the obstacle cost drops off (default: 10)
+    inflation_radius:     0.05 # max. distance from an obstacle at which costs are incurred for planning paths.
+  dynamic_obstacle_layer:
+    enabled: false
+    map_tolerance: 0.2
+    footprint_radius: 0.5
+    range: 2.0
+
+    # - {name: restricted_layer,       type: "restrict_area::RestrictedLayer" }
+    # - {name: costmap_prohibition_layer,  type: "costmap_prohibition_layer_namespace::CostmapProhibitionLayer"}
+ 

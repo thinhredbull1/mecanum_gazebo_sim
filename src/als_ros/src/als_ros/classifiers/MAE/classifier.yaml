@@ -1,0 +1,17 @@
+maxResidualError: 1.000000
+maeHistogramBinWidth: 0.025000
+failureThreshold: 0.289664
+successMAEMean: 0.289664
+successMAEStd: 0.093670
+failureMAEMean: 0.308608
+failureMAEStd: 0.073014
+truePositiveNum: 1066
+falseNegativeNum: 934
+trueNegativeNum: 1187
+falsePositiveNum: 813
+positiveMAEsFileName: positive_maes.txt
+negativeMAEsFileName: negative_maes.txt
+truePositiveMAEsFileName: true_positive_maes.txt
+trueNegativeMAEsFileName: true_negative_maes.txt
+falsePositiveMAEsFileName: false_positive_maes.txt
+falseNegativeMAEsFileName: false_negative_maes.txt

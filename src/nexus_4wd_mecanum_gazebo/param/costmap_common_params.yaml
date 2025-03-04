@@ -1,0 +1,58 @@
+obstacle_range: 3.0
+raytrace_range: 3.5
+
+footprint: [[-0.4, -0.25], [-0.4, 0.25], [0.4, 0.25], [0.4, -0.25]]
+inflation_radius: 0.3
+cost_scaling_factor: 3.0
+
+map_type: costmap
+
+obstacle_layer:
+
+  enabled:              true
+
+  max_obstacle_height:  2.0
+  min_obstacle_height:  0.05
+  combination_method:   1
+  
+  track_unknown_space:  true
+ 
+  # The robot updates the threshold of the obstacle distance from the base coordinate system in the cost map.
+  obstacle_range: 5.0
+  inflation_radius: 0.18
+  # The robot clears obstacles in the cost map from the threshold of the base coordinate system.
+  raytrace_range: 5.5
+  publish_voxel_map: false
+  observation_sources:  scan camera_scan
+  scan:
+    sensor_frame: base_scan
+    data_type: LaserScan
+    topic: "scan"
+    marking: true
+    clearing: false
+    # expected_update_rate: 0.0
+
+  camera_scan:
+    topic: /camera_scan_topic
+    data_type: LaserScan
+    marking: true
+    clearing: true
+    obstacle_range: 3.0
+    raytrace_range: 4.0
+
+
+#cost_scaling_factor and inflation_radius were now moved to the inflation_layer ns
+inflation_layer:
+  inflation_radius:     0.18
+  enabled:              true
+  # exponential rate at which the obstacle cost drops off
+  cost_scaling_factor:  1.0
+
+static_layer:
+  enabled:              true
+  map_topic:            "/map"
+dynamic_obstacle_layer:
+    enabled: false
+    map_tolerance: 0.2
+    footprint_radius: 0.5
+    range: 2.0
