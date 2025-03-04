@@ -104,22 +104,22 @@ DWAPlannerROS:
   odom_topic: odom
 
 # Robot Configuration Parameters
-  max_vel_x: 0.5
-  min_vel_x: -0.5
+  max_vel_x: 0.6
+  min_vel_x: -0.6
 
-  max_vel_y: 0.5           # 0 for non-holonomic robot
-  min_vel_y: -0.5            # 0 for non-holonomic robot
+  max_vel_y: 0.6           # 0 for non-holonomic robot
+  min_vel_y: -0.6            # 0 for non-holonomic robot
 
 # The velocity when robot is moving in a straight line
-  max_vel_trans:  0.5
-  min_vel_trans:  0.08
+  max_vel_trans:  0.6
+  min_vel_trans:  0.2
 
   max_vel_theta: 1.0
-  min_vel_theta: 0.1
+  min_vel_theta: 0.5
 
   acc_lim_x: 1.0
-  acc_lim_y: 1.5
-  acc_lim_theta: 2.5 
+  acc_lim_y: 1.0
+  acc_lim_theta: 2.0 
 
 # Goal Tolerance Parametes
   xy_goal_tolerance: 0.15
@@ -129,10 +129,10 @@ DWAPlannerROS:
 # Forward Simulation Parameters
   sim_time: 1.2                  # The amount of time to forward-simulate trajectories in seconds
   sim_granularity: 0.02          # The step size, in meters, to take between points on a given trajectory
-  vx_samples: 30                   # The number of samples to use when exploring the x velocity space
-  vy_samples: 30                    # The number of samples to use when exploring the y velocity space
-  vtheta_samples: 50           # The number of samples to use when exploring the theta velocity space
-  controller_frequency: 10.0       # The frequency at which this controller will be called in Hz
+  vx_samples: 15                   # The number of samples to use when exploring the x velocity space
+  vy_samples: 15                    # The number of samples to use when exploring the y velocity space
+  vtheta_samples: 20           # The number of samples to use when exploring the theta velocity space
+  controller_frequency: 5.0       # The frequency at which this controller will be called in Hz
 
 # Trajectory Scoring Parameters
   path_distance_bias: 30.5         # The weighting for how much the controller should stay close to the path it was given 

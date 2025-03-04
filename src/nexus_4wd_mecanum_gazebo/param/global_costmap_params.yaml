@@ -16,7 +16,7 @@ global_costmap:
   static_map: true
   plugins:
     - {name: static_layer,            type: "costmap_2d::StaticLayer"}
-    - {name: restricted_layer,        type: "restrict_area::RestrictedLayer"}
+    # - {name: restricted_layer,        type: "restrict_area::RestrictedLayer"}
     - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}
     - {name: inflation_layer,         type: "costmap_2d::InflationLayer"}
   # restricted_layer:

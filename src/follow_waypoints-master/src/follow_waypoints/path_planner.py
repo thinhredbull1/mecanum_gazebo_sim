@@ -193,7 +193,14 @@ class PathPlanner():
         rospy.Subscriber('/tf',tf2_msgs.msg.TFMessage, self.currentUpdate)
         rospy.Subscriber('/move_base/status',GoalStatusArray, self.follow_status)
         rospy.Subscriber('/bt_request',String, self.bt_react)
-
+        rospy.Subscriber('/reload_rviz',String, self.reload_waypoint)
+    def reload_waypoint(self,msg):
+        if msg.data=="RELOAD":
+            print("UPDATE RVIZ")
+            node_visual = node_maker(json.load(open(node_loco_path)))
+            node_context = context_maker(json.load(open(node_loco_path)))
+            self.node_visual_pub.publish(node_visual)
+            self.node_context_pub.publish(node_context)
     def save_waypoint(self):
         with open(self.output_file_path, 'w') as file:
                 i = 0
