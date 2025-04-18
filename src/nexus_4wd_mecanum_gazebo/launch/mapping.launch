@@ -22,10 +22,8 @@
 
 
     <!-- move_base -->
-    <!-- <include file="$(find turtlebot3_navigation)/launch/move_base.launch">
+    <include file="$(find nexus_4wd_mecanum_gazebo)/launch/move_base.launch"/>
 
-        <arg name="move_forward_only" value="$(arg move_forward_only)" />
-    </include> -->
 
     <!-- rviz -->
     <group if="$(arg open_rviz)">
