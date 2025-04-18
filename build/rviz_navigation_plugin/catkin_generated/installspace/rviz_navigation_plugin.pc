@@ -1,0 +1,8 @@
+prefix=/home/thinh/project_all/mecanum/mecanum_gazebo_sim/install
+
+Name: rviz_navigation_plugin
+Description: Description of rviz_navigation_plugin
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

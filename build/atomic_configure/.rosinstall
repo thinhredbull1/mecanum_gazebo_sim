@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/thinh/project_all/mecanum/mecanum_gazebo_sim/devel/setup.sh

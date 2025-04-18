@@ -1,0 +1,2 @@
+als_ros/src/als_ros:follow_waypoints-master:nexus_4wd_mecanum_description:nexus_4wd_mecanum_gazebo:rviz_control_panel:rviz_navigation_plugin:std_stamped_msgs
+-DCATKIN_DEVEL_PREFIX=/home/thinh/project_all/mecanum/mecanum_gazebo_sim/devel -DCMAKE_INSTALL_PREFIX=/home/thinh/project_all/mecanum/mecanum_gazebo_sim/install -G Unix Makefiles
