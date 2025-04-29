@@ -7,6 +7,7 @@
 
   <!-- move_base -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <!-- <param name="base_local_planner" value="neo_local_planner/NeoLocalPlanner"/> -->
     <!-- <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" /> -->
     <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
     <rosparam file="$(find nexus_4wd_mecanum_gazebo)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />

@@ -4,12 +4,12 @@
     <!--<plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <robotNamespace>/</robotNamespace>
     </plugin>-->
-
+  
     <plugin name="nexus_ros_force_based_move" filename="libnexus_ros_force_based_move.so">
       <commandTopic>cmd_vel</commandTopic>
       <odometryTopic>odom</odometryTopic>
       <odometryFrame>odom</odometryFrame>
-      <odometryRate>30.0</odometryRate>
+      <odometryRate>15.0</odometryRate>
       <robotBaseFrame>base_footprint</robotBaseFrame>
       <cmdVelTimeOut>0.25</cmdVelTimeOut>
       <publishOdometryTf>True</publishOdometryTf>
@@ -170,9 +170,8 @@
       </plugin>
     </sensor>
   </gazebo>
-    <!-- <gazebo reference="velodyne">
-   
-        <sensor type="ray" name="velodyne-VLP16">
+    <gazebo reference="velodyne">
+        <sensor type="gpu_ray" name="velodyne-VLP16">
           <pose>0 0 0 0 0 0</pose>
           <visualize>false</visualize>
           <update_rate>10</update_rate>
@@ -185,14 +184,14 @@
                 <max_angle>3.14159</max_angle>
               </horizontal>
               <vertical>
-                <samples>16</samples>
-                <resolution>1</resolution>
-                <min_angle>-${15.0*PI/180.0}</min_angle>
-                <max_angle> ${15.0*PI/180.0}</max_angle>
+                <samples>32</samples>
+                <resolution>4</resolution>
+                <min_angle>-${60.0*PI/180.0}</min_angle>
+                <max_angle> ${60.0*PI/180.0}</max_angle>
               </vertical>
             </scan>
             <range>
-              <min>0.3</min>
+              <min>0.5</min>
               <max>131</max>
               <resolution>0.001</resolution>
             </range>
@@ -202,16 +201,36 @@
               <stddev>0.0</stddev>
             </noise>
           </ray>
-          <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_velodyne_laser.so">
+          <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_velodyne_gpu_laser.so">
             <topicName>velodyne_lidar</topicName>
             <frameName>velodyne</frameName>
-            <min_range>0.9</min_range>
+            <min_range>0.5</min_range>
             <max_range>131.0</max_range>
             <gaussianNoise>0.008</gaussianNoise>
           </plugin>
         </sensor>
     
-    </gazebo> -->
+    </gazebo>
+    <gazebo reference="imu_link">
+      <gravity>true</gravity>
+      <sensor name="imu_sensor" type="imu">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <visualize>true</visualize>
+        <topic>imu</topic>
+        <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+          <topicName>imu</topicName>
+          <bodyName>imu_link</bodyName>
+          <updateRateHZ>10.0</updateRateHZ>
+          <gaussianNoise>0.0</gaussianNoise>
+          <xyzOffset>0 0 0</xyzOffset>
+          <rpyOffset>0 0 0</rpyOffset>
+          <frameName>imu_link</frameName>
+          <initialOrientationAsReference>false</initialOrientationAsReference>
+        </plugin>
+        <pose>0 0 0 0 0 0</pose>
+      </sensor>
+    </gazebo>
    <gazebo reference="base_scan">
    <sensor type="ray" name="head_hokuyo_sensor">
       <pose>0 0 0 0 0 0</pose>

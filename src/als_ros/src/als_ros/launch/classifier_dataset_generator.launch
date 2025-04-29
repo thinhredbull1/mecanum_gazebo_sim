@@ -5,8 +5,10 @@
     <arg name="map_yaml_file" default="/home/thinh/nexus_4wd_mecanum_simulator/src/nexus_4wd_mecanum_gazebo/map/map_now.yaml" />
     <arg name="map_name" default="/map" />
 
-    <!-- Number of generated samples -->
-    <arg name="generate_sample_num" default="2000" />
+    <!-- Number of generated samples train -->
+    <arg name="generate_sample_num" default="2000" /> 
+    <!-- Number of generated samples test -->
+    <!-- <arg name="generate_sample_num" default="1000" />  -->
 
     <!-- Save directory for the generated data -->
     <arg name="save_dir" default="/tmp/classifier_dataset_train/" />
@@ -14,7 +16,7 @@
 
     <!-- Number of moving obstacles
          Moving obstacles are stimulated when the dataset is created if the number is larger than 0. -->
-    <arg name="obstacles_num" default="20" />
+    <arg name="obstacles_num" default="5" />
 
     <!-- Scan parameters -->
     <arg name="angle_min" default="-180.0" /> <!-- degrees -->

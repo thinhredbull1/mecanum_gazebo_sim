@@ -1,0 +1,4 @@
+/opt/ros/noetic/lib/pkgconfig/nexus_4wd_mecanum_description.pc
+/opt/ros/noetic/share/nexus_4wd_mecanum_description/cmake/nexus_4wd_mecanum_descriptionConfig.cmake
+/opt/ros/noetic/share/nexus_4wd_mecanum_description/cmake/nexus_4wd_mecanum_descriptionConfig-version.cmake
+/opt/ros/noetic/share/nexus_4wd_mecanum_description/package.xml

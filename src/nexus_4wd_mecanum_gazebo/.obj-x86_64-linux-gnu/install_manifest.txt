@@ -1,0 +1,6 @@
+/opt/ros/noetic/lib/pkgconfig/nexus_4wd_mecanum_gazebo.pc
+/opt/ros/noetic/share/nexus_4wd_mecanum_gazebo/cmake/nexus_4wd_mecanum_gazeboConfig.cmake
+/opt/ros/noetic/share/nexus_4wd_mecanum_gazebo/cmake/nexus_4wd_mecanum_gazeboConfig-version.cmake
+/opt/ros/noetic/share/nexus_4wd_mecanum_gazebo/package.xml
+/opt/ros/noetic/include/nexus_4wd_mecanum_gazebo/nexus_ros_force_based_move.h
+/opt/ros/noetic/lib/libnexus_ros_force_based_move.so

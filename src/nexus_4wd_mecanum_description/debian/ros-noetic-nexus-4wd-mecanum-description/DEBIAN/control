@@ -1,0 +1,9 @@
+Package: ros-noetic-nexus-4wd-mecanum-description
+Version: 0.1.0-0focal
+Architecture: amd64
+Maintainer: Robin Baran <r-baran@hotmail.fr>
+Installed-Size: 29
+Depends: gazebo11, libgazebo11-dev, ros-noetic-kdl-parser, ros-noetic-robot-state-publisher, ros-noetic-urdf
+Section: misc
+Priority: optional
+Description: The nexus_4wd_mecanum_description package

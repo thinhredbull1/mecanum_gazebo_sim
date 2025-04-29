@@ -43,9 +43,10 @@
         izz="0.074201740"/>
     </inertial>
   </link>
+  
 
   <joint name="upper_left_wheel_shaft_joint" type="fixed">
-    <origin xyz="0.150 0.108 0.0" rpy="0 0 0" />
+    <origin xyz="0.150 0.108 0.0" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="upper_left_wheel_shaft" />
   </joint>
@@ -55,6 +56,11 @@
     <origin xyz="${camera_link} 0 0.13" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="camera_link"/>
+  </joint>
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="0.0 0.0 0.3" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="imu_link"/>
   </joint>
   <joint name="depth_joint" type="fixed">
     <axis xyz="0 1 0" />
@@ -78,6 +84,28 @@
     <box size="${camera_link} ${camera_link} ${camera_link}"/>
       </geometry>
       <material name="red"/>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+  <link name="imu_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+    <box size="${camera_link} ${camera_link} ${camera_link}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+    <box size="${camera_link} ${camera_link} ${camera_link}"/>
+      </geometry>
+      <!-- <material name="red"/> -->
     </visual>
 
     <inertial>
@@ -477,7 +505,7 @@
   </link>
 
   <joint name="velodyne_base_scan_joint" type="fixed" >
-      <origin xyz="0 0 0.0377" rpy="0 0 0" />
+      <origin xyz="0 0 0.08" rpy="0 0 0" />
       <parent link="velodyne_base_link" />
       <child link="velodyne"/>
   </joint>

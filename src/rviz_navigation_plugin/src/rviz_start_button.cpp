@@ -15,7 +15,7 @@ NavigationButton::NavigationButton(QWidget* parent)
     :rviz::Panel(parent),
     _doing_navigation(false)
 {
-    _clear_pub = _nh.advertise<std_msgs::Bool>("/clear_nav_point",100);
+    _clear_pub = _nh.advertise<std_msgs::Bool>("/clear_nav_point",10);
     _label_pub = _nh.advertise<std_msgs::String>("/point_label",1);
 
     QVBoxLayout *root = new QVBoxLayout;

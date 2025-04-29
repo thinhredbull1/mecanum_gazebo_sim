@@ -1,0 +1,8 @@
+55b3c7dcd97cd59e0087272c38235557  opt/ros/noetic/include/nexus_4wd_mecanum_gazebo/nexus_ros_force_based_move.h
+5e9d0c30ba543aa1adaed31ccf07a4e1  opt/ros/noetic/lib/libnexus_ros_force_based_move.so
+f71f9b0f4bc513cf78f04ecad185deb8  opt/ros/noetic/lib/pkgconfig/nexus_4wd_mecanum_gazebo.pc
+e9aaaefee7f495e7e18ba62a1cf93613  opt/ros/noetic/share/nexus_4wd_mecanum_gazebo/cmake/nexus_4wd_mecanum_gazeboConfig-version.cmake
+d706ef3d133f354262b804947d7d17c0  opt/ros/noetic/share/nexus_4wd_mecanum_gazebo/cmake/nexus_4wd_mecanum_gazeboConfig.cmake
+7df1117291ae56eae1250a9389f08bc2  opt/ros/noetic/share/nexus_4wd_mecanum_gazebo/package.xml
+89f6249e7453a794ce36a10b517f708a  usr/share/doc/ros-noetic-nexus-4wd-mecanum-gazebo/changelog.Debian.gz
+6b1895ab4e3e6a9f42ad7044dbf37a82  usr/share/doc/ros-noetic-nexus-4wd-mecanum-gazebo/copyright

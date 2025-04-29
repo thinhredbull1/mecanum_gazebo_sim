@@ -1,0 +1,12 @@
+Source: ros-noetic-nexus-4wd-mecanum-gazebo
+Section: misc
+Priority: optional
+Maintainer: Robin Baran <r-baran@hotmail.fr>
+Build-Depends: debhelper (>= 9.0.0), gazebo11, libgazebo11-dev, ros-noetic-catkin, ros-noetic-geometry-msgs, ros-noetic-message-generation, ros-noetic-nav-msgs, ros-noetic-roscpp, ros-noetic-std-msgs, ros-noetic-std-srvs, ros-noetic-tf
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-noetic-nexus-4wd-mecanum-gazebo
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, gazebo11, ros-noetic-gazebo-ros, ros-noetic-geometry-msgs, ros-noetic-message-runtime, ros-noetic-nav-msgs, ros-noetic-roscpp, ros-noetic-std-msgs, ros-noetic-std-srvs, ros-noetic-tf
+Description: The package for the Gazebo plugins and worlds of the nexus 4WD mecanum robot.

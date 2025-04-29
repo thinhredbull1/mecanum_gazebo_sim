@@ -1,0 +1,8 @@
+prefix=/home/thinh/nexus_4wd_mecanum_simulator/src/nexus_4wd_mecanum_gazebo/.obj-x86_64-linux-gnu/devel
+
+Name: nexus_4wd_mecanum_gazebo
+Description: Description of nexus_4wd_mecanum_gazebo
+Version: 0.1.0
+Cflags: -I/home/thinh/nexus_4wd_mecanum_simulator/src/nexus_4wd_mecanum_gazebo/include
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs geometry_msgs nav_msgs tf message_runtime

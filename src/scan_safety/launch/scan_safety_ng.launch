@@ -1,0 +1,7 @@
+<launch>
+  <arg name="log_level" default="2"/>
+  <arg name="use_sim_time" default="true" />
+  <node name="scan_safety_node_ng" pkg="scan_safety" type="scan_safety_node_ng.py" output="screen" args="$(arg log_level)">
+    <rosparam file="$(find scan_safety)/config/safety_config_ng.yaml" command="load"/>
+  </node>
+</launch>

@@ -1,0 +1,13 @@
+Package: ros-noetic-nexus-4wd-mecanum-gazebo-dbgsym
+Package-Type: ddeb
+Source: ros-noetic-nexus-4wd-mecanum-gazebo
+Version: 0.1.0-0focal
+Auto-Built-Package: debug-symbols
+Architecture: amd64
+Maintainer: Robin Baran <r-baran@hotmail.fr>
+Installed-Size: 1862
+Depends: ros-noetic-nexus-4wd-mecanum-gazebo (= 0.1.0-0focal)
+Section: debug
+Priority: optional
+Description: debug symbols for ros-noetic-nexus-4wd-mecanum-gazebo
+Build-Ids: e49ff78655fc99e97ecac43c00205cb49a221b41

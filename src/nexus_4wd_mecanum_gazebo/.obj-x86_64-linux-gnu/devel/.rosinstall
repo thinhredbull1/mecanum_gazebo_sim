@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/thinh/nexus_4wd_mecanum_simulator/src/nexus_4wd_mecanum_gazebo/.obj-x86_64-linux-gnu/devel/setup.sh

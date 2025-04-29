@@ -1,0 +1,12 @@
+Source: ros-noetic-nexus-4wd-mecanum-description
+Section: misc
+Priority: optional
+Maintainer: Robin Baran <r-baran@hotmail.fr>
+Build-Depends: debhelper (>= 9.0.0), gazebo11, libgazebo11-dev, ros-noetic-catkin, ros-noetic-robot-state-publisher, ros-noetic-urdf
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-noetic-nexus-4wd-mecanum-description
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, gazebo11, libgazebo11-dev, ros-noetic-kdl-parser, ros-noetic-robot-state-publisher, ros-noetic-urdf
+Description: The nexus_4wd_mecanum_description package

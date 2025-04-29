@@ -199,6 +199,8 @@ class PathPlanner():
             print("UPDATE RVIZ")
             node_visual = node_maker(json.load(open(node_loco_path)))
             node_context = context_maker(json.load(open(node_loco_path)))
+            self.node_relation = json.load(open(node_rela_path))
+            self.node_location = json.load(open(node_loco_path))
             self.node_visual_pub.publish(node_visual)
             self.node_context_pub.publish(node_context)
     def save_waypoint(self):
@@ -317,6 +319,12 @@ class PathPlanner():
                 if self.tag_dest == str(tag):
                     self.dest_node = str(item['id'])
                     founded_node = True
+        if not founded_node:
+            for item in self.node_location:
+                for tag in item['id']:
+                    if self.tag_dest==tag:
+                        self.dest_node=tag
+                        founded_node= True
         if founded_node == True:
             result = self.waypoint_planner(self.current_node.data,self.dest_node)
             if result == True:
@@ -326,6 +334,7 @@ class PathPlanner():
             elif result == False:
                 rospy.loginfo("CAN NOT FIND A WAY, PLEASE RECONFIGURE THE NODE RELATION FILE")
         else:
+
             rospy.loginfo("%s" % "TAG NOT CONFIG")
 
 
@@ -405,9 +414,21 @@ class PathPlanner():
         self.path_collision = []
         self.node_ids = []
         print("SOURCE , DEST: ",source_node,destination_node)
-        path = self.astar(source_node,destination_node)
+        # path = self.astar(source_node,destination_node)
+        path=[]
+                
+        if destination_node<source_node:
+            print("qewewq")
+            new_node=Node(None, str(0))
+            path.append(new_node)
+        else:
+            for i in range(int(source_node),int(destination_node)+1):
+                new_node=Node(None, str(i))
+                path.append(new_node)
+        # print(len([path]))
         try:
             total_node = len(path)
+            # print(f"total:{total_node}")
             for i in range(total_node):
                 self.path_collision.append(path[i].collision)
                 self.node_ids.append(path[i].id)
@@ -426,6 +447,7 @@ class PathPlanner():
                     elif path[i].yaw != None:
                         pose = self.convert_poses(path[i])
                         self.waypoints.append(pose)
+            print(f"len wp:{len(self.waypoints)}")
             return True
         except TypeError:
             return False
@@ -467,6 +489,7 @@ class PathPlanner():
                 current = _current_node
                 while current is not None:
                     path.append(current)
+               
                     current = current.parent
                 return path[::-1] # Return reversed path
             
@@ -481,9 +504,13 @@ class PathPlanner():
                             children.append(c_node)
             
             i = 0
+            
+           
             for child in children:
             # Child is on the closed list
+                # print(child.id)
                 for closed_child in closed_list:
+                    
                     if child.id == closed_child.id:
                         i = i + 1
                         if i > children_num:
