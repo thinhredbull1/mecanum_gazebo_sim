@@ -1,0 +1,13 @@
+\subsubsection usage Usage
+\verbatim
+<node name="scan_safety" pkg="scan_safety" type="scan_safety">
+  <param name="number_of_fields" type="int" value="3" />
+  <param name="field_1" type="str" value="" />
+  <param name="vmax_1" type="double" value="0.0" />
+  <param name="field_2" type="str" value="" />
+  <param name="vmax_2" type="double" value="0.2" />
+  <param name="field_3" type="str" value="" />
+  <param name="vmax_3" type="double" value="0.4" />
+</node>
+\endverbatim
+

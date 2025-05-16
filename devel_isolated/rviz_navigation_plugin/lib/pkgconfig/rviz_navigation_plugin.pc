@@ -1,0 +1,8 @@
+prefix=/home/thinh/nexus_4wd_mecanum_simulator/devel_isolated/rviz_navigation_plugin
+
+Name: rviz_navigation_plugin
+Description: Description of rviz_navigation_plugin
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

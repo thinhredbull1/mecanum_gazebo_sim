@@ -1,5 +1,0 @@
-<launch>
-  <!-- Arguments -->
-  <arg name="map" default="map_navi"/>
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find turtlebot3_slam)/maps/$(arg map).yaml"/>
-</launch>

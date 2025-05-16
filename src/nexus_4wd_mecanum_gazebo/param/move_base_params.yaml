@@ -44,3 +44,13 @@ move_slow_and_clear:
   limited_trans_speed: 0.1
   limited_rot_speed: 0.4
   limited_distance: 0.3
+CirclePlanner:
+  radius: 2.0
+  num_points: 100
+  use_zigzag: True
+  zigzag_segment_length : 3.0
+  zigzag_amplitude: 1.5
+  frame_id: map
+  use_sine: false
+  amplitude: 1.0
+  wavelength: 4.0

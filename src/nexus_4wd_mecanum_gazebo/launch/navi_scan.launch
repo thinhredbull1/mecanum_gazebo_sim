@@ -15,7 +15,7 @@
  <!-- <node pkg="tf" type="static_transform_publisher" name="map_to_base_link" args="0 0 0 0 0.0 0 odom base_footprint 1000" /> -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <!-- <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/navi_mirror.world"/> -->
-   <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/turtlebot3_world.world"/>
+   <!-- <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/turtlebot3_world.world"/> -->
     <!-- <arg name="world_name" value="$(find aruco_navigation)/worlds/bot_world.world"/>  -->
     <arg name="debug" value="0" />
     <arg name="gui" value="$(arg gui)" />

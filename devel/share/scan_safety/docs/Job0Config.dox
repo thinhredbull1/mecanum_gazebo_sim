@@ -1,0 +1,12 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~number_of_fields" : \b [int] So luong fields cua job min: 1, default: 3, max: 3
+- \b "~field_1" : \b [str] Cac dinh cua field min: , default: , max: 
+- \b "~vmax_1" : \b [double] vmax for field 1 min: 0.0, default: 0.0, max: 2.0
+- \b "~field_2" : \b [str] Cac dinh cua field min: , default: , max: 
+- \b "~vmax_2" : \b [double] vmax for field 2 min: 0.0, default: 0.2, max: 2.0
+- \b "~field_3" : \b [str] Cac dinh cua field min: , default: , max: 
+- \b "~vmax_3" : \b [double] vmax for field 3 min: 0.0, default: 0.4, max: 2.0
+

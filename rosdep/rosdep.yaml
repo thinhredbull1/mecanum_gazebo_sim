@@ -1,0 +1,2 @@
+gazebo-dev:
+  ubuntu: [gazebo11, libgazebo11-dev]  # Ubuntu sẽ cài 2 package này thay cho gazebo-dev

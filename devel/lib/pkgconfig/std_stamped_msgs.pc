@@ -1,0 +1,8 @@
+prefix=/home/thinh/nexus_4wd_mecanum_simulator/devel
+
+Name: std_stamped_msgs
+Description: Description of std_stamped_msgs
+Version: 0.5.13
+Cflags: -I/home/thinh/nexus_4wd_mecanum_simulator/devel/include
+Libs: -L${prefix}/lib 
+Requires: message_runtime actionlib actionlib_msgs

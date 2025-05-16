@@ -1,0 +1,7 @@
+<library path="lib/libglobal_planner_path">
+  <class name="global_planner_path/CirclePlanner" type="global_planner_path::CirclePlanner" base_class_type="nav_core::BaseGlobalPlanner">
+    <description>
+      A global planner that generates a circular or sinusoidal path.
+    </description>
+  </class>
+</library>

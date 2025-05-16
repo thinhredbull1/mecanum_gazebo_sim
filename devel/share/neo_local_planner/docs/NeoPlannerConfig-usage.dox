@@ -1,0 +1,51 @@
+\subsubsection usage Usage
+\verbatim
+<node name="neo_local_planner" pkg="neo_local_planner" type="neo_local_planner">
+  <param name="acc_lim_x" type="double" value="0.3" />
+  <param name="acc_lim_theta" type="double" value="1.5" />
+  <param name="max_vel_x" type="double" value="1.2" />
+  <param name="min_vel_x" type="double" value="0.0" />
+  <param name="max_rot_vel" type="double" value="0.7" />
+  <param name="min_rot_vel" type="double" value="0.1" />
+  <param name="max_vel_trans" type="double" value="1.2" />
+  <param name="min_vel_trans" type="double" value="0.1" />
+  <param name="rot_stopped_vel" type="double" value="0.05" />
+  <param name="trans_stopped_vel" type="double" value="0.05" />
+  <param name="yaw_goal_tolerance" type="double" value="0.1" />
+  <param name="xy_goal_tolerance" type="double" value="0.05" />
+  <param name="differential_drive" type="bool" value="False" />
+  <param name="constrain_final" type="bool" value="False" />
+  <param name="goal_tune_time" type="double" value="0.5" />
+  <param name="lookahead_time" type="double" value="0.5" />
+  <param name="lookahead_dist" type="double" value="0.3" />
+  <param name="start_yaw_error_normal" type="double" value="0.1" />
+  <param name="start_yaw_error_when_safety" type="double" value="0.1" />
+  <param name="pos_x_gain" type="double" value="1.0" />
+  <param name="pos_y_gain" type="double" value="1.0" />
+  <param name="pos_y_yaw_gain" type="double" value="1.0" />
+  <param name="yaw_gain" type="double" value="2.0" />
+  <param name="static_yaw_gain" type="double" value="3.0" />
+  <param name="cost_x_gain" type="double" value="0.1" />
+  <param name="cost_y_gain" type="double" value="0.1" />
+  <param name="cost_y_yaw_gain" type="double" value="0.2" />
+  <param name="cost_y_lookahead_dist" type="double" value="0.3" />
+  <param name="cost_y_lookahead_time" type="double" value="1.5" />
+  <param name="cost_yaw_gain" type="double" value="2.0" />
+  <param name="low_pass_gain" type="double" value="0.2" />
+  <param name="max_cost" type="double" value="0.95" />
+  <param name="max_curve_vel" type="double" value="0.3" />
+  <param name="max_goal_dist" type="double" value="0.6" />
+  <param name="max_backup_dist" type="double" value="0.1" />
+  <param name="min_stop_dist" type="double" value="0.3" />
+  <param name="emergency_acc_lim_x" type="double" value="1.5" />
+  <param name="enable_software_stop" type="bool" value="False" />
+  <param name="allow_reversing" type="bool" value="True" />
+  <param name="vel_max_safety_field_0" type="double" value="0.0" />
+  <param name="vel_max_safety_field_1" type="double" value="0.0" />
+  <param name="vel_max_safety_field_2" type="double" value="0.3" />
+  <param name="vel_max_safety_field_3" type="double" value="0.5" />
+  <param name="max_time_check_stop_by_safety" type="double" value="1.0" />
+  <param name="print_state" type="bool" value="True" />
+</node>
+\endverbatim
+

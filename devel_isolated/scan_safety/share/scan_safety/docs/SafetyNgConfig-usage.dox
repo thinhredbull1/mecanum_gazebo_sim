@@ -1,0 +1,10 @@
+\subsubsection usage Usage
+\verbatim
+<node name="scan_safety_ng" pkg="scan_safety" type="scan_safety_ng">
+  <param name="slice_size" type="int" value="5" />
+  <param name="min_ray" type="int" value="3" />
+  <param name="footprint" type="str" value="" />
+  <param name="job" type="str" value="" />
+</node>
+\endverbatim
+

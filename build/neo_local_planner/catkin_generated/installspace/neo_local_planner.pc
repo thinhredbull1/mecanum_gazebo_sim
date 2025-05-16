@@ -1,0 +1,8 @@
+prefix=/home/thinh/nexus_4wd_mecanum_simulator/install
+
+Name: neo_local_planner
+Description: Description of neo_local_planner
+Version: 1.0.1
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -lneo_local_planner
+Requires: dynamic_reconfigure nav_msgs pluginlib roscpp tf2_ros tf2_sensor_msgs tf2_geometry_msgs

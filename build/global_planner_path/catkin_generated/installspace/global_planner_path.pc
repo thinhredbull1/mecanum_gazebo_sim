@@ -1,0 +1,8 @@
+prefix=/home/thinh/nexus_4wd_mecanum_simulator/install
+
+Name: global_planner_path
+Description: Description of global_planner_path
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

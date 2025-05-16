@@ -1,0 +1,13 @@
+\subsubsection usage Usage
+\verbatim
+<node name="scan_safety" pkg="scan_safety" type="scan_safety">
+  <param name="current_job" type="int" value="1" />
+  <param name="slice_size" type="int" value="5" />
+  <param name="min_ray" type="int" value="3" />
+  <param name="footprint" type="str" value="" />
+  <param name="publish_vel" type="bool" value="True" />
+  <param name="cmd_vel_input" type="str" value="/cmd_vel" />
+  <param name="cmd_vel_output" type="str" value="/safety_cmd_vel" />
+</node>
+\endverbatim
+

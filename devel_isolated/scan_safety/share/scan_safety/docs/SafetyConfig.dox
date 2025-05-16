@@ -1,0 +1,12 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~current_job" : \b [int] current job min: 0, default: 1, max: 16
+- \b "~slice_size" : \b [int] size of slice bar min: 2, default: 5, max: 100
+- \b "~min_ray" : \b [int] min size as obstacle. Must smaller than slice_size min: 1, default: 3, max: 100
+- \b "~footprint" : \b [str] Cac dinh cua field min: , default: , max: 
+- \b "~publish_vel" : \b [bool]  min: False, default: True, max: True
+- \b "~cmd_vel_input" : \b [str] topic cmd vel input min: , default: /cmd_vel, max: 
+- \b "~cmd_vel_output" : \b [str] topic cmd vel output min: , default: /safety_cmd_vel, max: 
+

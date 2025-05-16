@@ -170,7 +170,7 @@
       </plugin>
     </sensor>
   </gazebo>
-    <gazebo reference="velodyne">
+    <!-- <gazebo reference="velodyne">
         <sensor type="gpu_ray" name="velodyne-VLP16">
           <pose>0 0 0 0 0 0</pose>
           <visualize>false</visualize>
@@ -210,7 +210,7 @@
           </plugin>
         </sensor>
     
-    </gazebo>
+    </gazebo> -->
     <gazebo reference="imu_link">
       <gravity>true</gravity>
       <sensor name="imu_sensor" type="imu">

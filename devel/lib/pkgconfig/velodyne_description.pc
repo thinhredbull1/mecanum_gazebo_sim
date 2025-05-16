@@ -1,0 +1,8 @@
+prefix=/home/thinh/nexus_4wd_mecanum_simulator/devel
+
+Name: velodyne_description
+Description: Description of velodyne_description
+Version: 1.0.9
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

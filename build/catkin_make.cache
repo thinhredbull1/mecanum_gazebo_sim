@@ -1,0 +1,2 @@
+global_planner_path
+-DCATKIN_DEVEL_PREFIX=/home/thinh/nexus_4wd_mecanum_simulator/devel -DCMAKE_INSTALL_PREFIX=/home/thinh/nexus_4wd_mecanum_simulator/install -DCATKIN_WHITELIST_PACKAGES=global_planner_path -G Unix Makefiles

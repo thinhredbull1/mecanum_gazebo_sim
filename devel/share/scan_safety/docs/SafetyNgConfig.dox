@@ -1,0 +1,9 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~slice_size" : \b [int] size of slice bar min: 2, default: 5, max: 100
+- \b "~min_ray" : \b [int] min size as obstacle. Must smaller than slice_size min: 1, default: 3, max: 100
+- \b "~footprint" : \b [str] Cac dinh cua field min: , default: , max: 
+- \b "~job" : \b [str] Json string of safety job min: , default: , max: 
+

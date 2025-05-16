@@ -1,0 +1,8 @@
+prefix=/home/thinh/nexus_4wd_mecanum_simulator/devel_isolated/rviz_custom
+
+Name: rviz_custom
+Description: Description of rviz_custom
+Version: 0.0.1
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

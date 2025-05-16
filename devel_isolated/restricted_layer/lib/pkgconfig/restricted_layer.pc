@@ -1,0 +1,8 @@
+prefix=/home/thinh/nexus_4wd_mecanum_simulator/devel_isolated/restricted_layer
+
+Name: restricted_layer
+Description: Description of restricted_layer
+Version: 0.0.1
+Cflags: -I/home/thinh/nexus_4wd_mecanum_simulator/devel_isolated/restricted_layer/include
+Libs: -L${prefix}/lib 
+Requires: std_msgs message_runtime

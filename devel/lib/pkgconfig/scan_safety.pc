@@ -1,0 +1,8 @@
+prefix=/home/thinh/nexus_4wd_mecanum_simulator/devel
+
+Name: scan_safety
+Description: Description of scan_safety
+Version: 0.0.0
+Cflags: -I/home/thinh/nexus_4wd_mecanum_simulator/devel/include
+Libs: -L${prefix}/lib 
+Requires: roscpp rospy std_msgs message_runtime

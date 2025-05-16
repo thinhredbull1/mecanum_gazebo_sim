@@ -418,7 +418,6 @@ class PathPlanner():
         path=[]
                 
         if destination_node<source_node:
-            print("qewewq")
             new_node=Node(None, str(0))
             path.append(new_node)
         else:

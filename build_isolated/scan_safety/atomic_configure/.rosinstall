@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/thinh/nexus_4wd_mecanum_simulator/devel_isolated/scan_safety/setup.sh

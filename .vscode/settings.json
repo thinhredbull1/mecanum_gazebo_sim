@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "functional": "cpp",
+        "*.inc": "cpp",
+        "typeindex": "cpp",
+        "typeinfo": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "random": "cpp"
+    }
+}

@@ -1,0 +1,50 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~acc_lim_x" : \b [double] The acceleration limit of the robot in the x direction min: -20.0, default: 0.3, max: 20.0
+- \b "~acc_lim_theta" : \b [double] The acceleration limit of the robot in the theta direction min: -20.0, default: 1.5, max: 20.0
+- \b "~max_vel_x" : \b [double] The maximum x velocity for the robot in m/s min: -20.0, default: 1.2, max: 20.0
+- \b "~min_vel_x" : \b [double] The minimum x velocity for the robot in m/s min: -20.0, default: 0.0, max: 20.0
+- \b "~max_rot_vel" : \b [double] The absolute value of the maximum rotational velocity for the robot in rad/s min: -20.0, default: 0.7, max: 20.0
+- \b "~min_rot_vel" : \b [double] The absolute value of the minimum rotational velocity for the robot in rad/s min: -20.0, default: 0.1, max: 20.0
+- \b "~max_vel_trans" : \b [double] The absolute value of the maximum rotational velocity for the robot in rad/s min: -20.0, default: 1.2, max: 20.0
+- \b "~min_vel_trans" : \b [double] The absolute value of the minimum rotational velocity for the robot in rad/s min: -20.0, default: 0.1, max: 20.0
+- \b "~rot_stopped_vel" : \b [double] The absolute value of the maximum rotational velocity for the robot in rad/s min: -20.0, default: 0.05, max: 20.0
+- \b "~trans_stopped_vel" : \b [double] The absolute value of the maximum rotational velocity for the robot in rad/s min: -20.0, default: 0.05, max: 20.0
+- \b "~yaw_goal_tolerance" : \b [double] The tolerance in radians for the controller in yaw/rotation when achieving its goal min: -20.0, default: 0.1, max: 20.0
+- \b "~xy_goal_tolerance" : \b [double] The tolerance in meters for the controller in the x & y distance when achieving a goal min: -20.0, default: 0.05, max: 20.0
+- \b "~differential_drive" : \b [bool] If robot has differential drive, holonomic otherwise min: False, default: False, max: True
+- \b "~constrain_final" : \b [bool] The absolute value of the maximum rotational velocity for the robot in rad/s min: False, default: False, max: True
+- \b "~goal_tune_time" : \b [double] How long to fine tune for goal position after reaching tolerance limits [s] min: -20.0, default: 0.5, max: 20.0
+- \b "~lookahead_time" : \b [double] How far to predict control pose into the future based on latest odometry [s] min: -20.0, default: 0.5, max: 20.0
+- \b "~lookahead_dist" : \b [double] How far to look ahead when computing path orientation [m] min: -20.0, default: 0.3, max: 20.0
+- \b "~start_yaw_error_normal" : \b [double] Threshold yaw error below which we consider to start moving [rad] min: -20.0, default: 0.1, max: 20.0
+- \b "~start_yaw_error_when_safety" : \b [double] Threshold yaw error below which we consider to start moving if have safety [rad] min: -20.0, default: 0.1, max: 20.0
+- \b "~pos_x_gain" : \b [double] Gain when adjusting final x position for goal [1/s] min: -20.0, default: 1.0, max: 20.0
+- \b "~pos_y_gain" : \b [double] Gain for lane keeping based on y error (differential only) [rad/s^2] min: -20.0, default: 1.0, max: 20.0
+- \b "~pos_y_yaw_gain" : \b [double] Gain for lane keeping based on y error (differential only) [rad/s^2] min: -20.0, default: 1.0, max: 20.0
+- \b "~yaw_gain" : \b [double] Gain for lane keeping based on yaw error (differential only) [1/s] min: -20.0, default: 2.0, max: 20.0
+- \b "~static_yaw_gain" : \b [double] Gain for adjusting yaw when not translating, or in case of holonomic drive [1/s] min: -20.0, default: 3.0, max: 20.0
+- \b "~cost_x_gain" : \b [double] Gain for x cost avoidance min: -20.0, default: 0.1, max: 20.0
+- \b "~cost_y_gain" : \b [double] TGain for y cost avoidance min: -20.0, default: 0.1, max: 20.0
+- \b "~cost_y_yaw_gain" : \b [double] Gain for y cost avoidance (differential only) min: -20.0, default: 0.2, max: 20.0
+- \b "~cost_y_lookahead_dist" : \b [double] The number of samples to use when exploring the theta velocity space min: -20.0, default: 0.3, max: 20.0
+- \b "~cost_y_lookahead_time" : \b [double] How far ahead to compute y cost gradient (dynamic offset) [s] min: -20.0, default: 1.5, max: 20.0
+- \b "~cost_yaw_gain" : \b [double] Gain for yaw cost avoidance min: -20.0, default: 2.0, max: 20.0
+- \b "~low_pass_gain" : \b [double] Gain for final control low pass filter min: -20.0, default: 0.2, max: 20.0
+- \b "~max_cost" : \b [double] Max cost to allow, above we slow down to min_trans_vel or even stop min: -20.0, default: 0.95, max: 20.0
+- \b "~max_curve_vel" : \b [double] Max velocity based on curvature [rad/s] min: -20.0, default: 0.3, max: 20.0
+- \b "~max_goal_dist" : \b [double] Max distance to goal when looking for it [m] min: -20.0, default: 0.6, max: 20.0
+- \b "~max_backup_dist" : \b [double] Max distance allowable for backing up (zero = unlimited) [m] min: -20.0, default: 0.1, max: 20.0
+- \b "~min_stop_dist" : \b [double] Minimal distance to obstacle for stopping [m] min: -20.0, default: 0.3, max: 20.0
+- \b "~emergency_acc_lim_x" : \b [double] Acc when emgergency min: -20.0, default: 1.5, max: 20.0
+- \b "~enable_software_stop" : \b [bool] Footprint based collision avoidance min: False, default: False, max: True
+- \b "~allow_reversing" : \b [bool] Robot with safety sensors in the rear can be set to reverse min: False, default: True, max: True
+- \b "~vel_max_safety_field_0" : \b [double] Vel max in safety field 0 min: -20.0, default: 0.0, max: 20.0
+- \b "~vel_max_safety_field_1" : \b [double] Vel max in safety field 1 min: -20.0, default: 0.0, max: 20.0
+- \b "~vel_max_safety_field_2" : \b [double] Vel max in safety field 2 min: -20.0, default: 0.3, max: 20.0
+- \b "~vel_max_safety_field_3" : \b [double] Vel max in safety field 3 min: -20.0, default: 0.5, max: 20.0
+- \b "~max_time_check_stop_by_safety" : \b [double] Time delay after get safety min: -20.0, default: 1.0, max: 20.0
+- \b "~print_state" : \b [bool] Print current state or not min: False, default: True, max: True
+
