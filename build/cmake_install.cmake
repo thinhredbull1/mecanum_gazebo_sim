@@ -131,7 +131,7 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/thinh/nexus_4wd_mecanum_simulator/build/gtest/cmake_install.cmake")
-  include("/home/thinh/nexus_4wd_mecanum_simulator/build/global_planner_path/cmake_install.cmake")
+  include("/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/cmake_install.cmake")
 
 endif()
 

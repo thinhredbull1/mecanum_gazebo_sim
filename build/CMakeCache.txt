@@ -84,7 +84,7 @@ CATKIN_SKIP_TESTING:BOOL=OFF
 CATKIN_SYMLINK_INSTALL:BOOL=OFF
 
 //List of ';' separated packages to build
-CATKIN_WHITELIST_PACKAGES:STRING=global_planner_path
+CATKIN_WHITELIST_PACKAGES:STRING=path_tracking
 
 //Path to a file.
 CCD_INCLUDE_DIRS:PATH=/usr/include
@@ -1310,6 +1310,12 @@ octomap_DIR:PATH=/usr/lib/x86_64-linux-gnu/octomap
 
 //Path to a library.
 onelib:FILEPATH=/usr/lib/x86_64-linux-gnu/libgazebo_opende_ou.so
+
+//Value Computed by CMake
+path_tracking_BINARY_DIR:STATIC=/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking
+
+//Value Computed by CMake
+path_tracking_SOURCE_DIR:STATIC=/home/thinh/nexus_4wd_mecanum_simulator/src/path_tracking
 
 //The directory containing a CMake configuration file for pcl_conversions.
 pcl_conversions_DIR:PATH=/opt/ros/noetic/share/pcl_conversions/cmake

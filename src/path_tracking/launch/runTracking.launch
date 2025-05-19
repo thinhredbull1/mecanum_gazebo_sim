@@ -1,0 +1,19 @@
+<!-- http://wiki.ros.org/roslaunch/XML/node -->
+<launch>
+    <param name="/use_sim_time" value="true"/>  
+    <node name="PidControl" pkg="path_tracking" type="PidControl" output="screen">
+     
+       <param name="flag" type="int" value="1" />
+
+       <!--flag =1 the desired trajectory is circle，2 cosine-->   
+       <param name="Slip_com" type="int" value="0" />
+      
+       <!--the slip compensation is useless for current progrem,should be 0 for now-->
+       <param name="SMC_on" type="int" value="2" />
+       <param name="frame_id" type="str" value="odom_reset" />
+       <param name="ctrl_rate" type="int" value="15" />
+       <!--SMC_on = 0 is open loop, =1 is SMC with fast double power reaching law, =2 is reserved -->
+    </node>
+    <!-- <node name="odom_fake" pkg="path_tracking" type="odom_fake.py" output="screen"/> -->
+ </launch>
+ 
