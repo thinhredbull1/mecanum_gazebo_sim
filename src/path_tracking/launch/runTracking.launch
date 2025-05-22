@@ -3,21 +3,28 @@
     <param name="/use_sim_time" value="true"/>  
     <node name="PurePursuitControl" pkg="path_tracking" type="PurePursuitControl" output="screen">
      
-       <param name="flag" type="int" value="1" />
+       <param name="flag" type="int" value="2" />
 
        <!--flag =1 the desired trajectory is circle，2 cosine-->   
        <param name="Slip_com" type="int" value="0" />
       
        <!--the slip compensation is useless for current progrem,should be 0 for now-->
        <param name="SMC_on" type="int" value="2" />
+        <!--SMC_on = 0 is open loop, =1 is PP, =2 APP -->
        <param name="frame_id" type="str" value="odom_reset" />
        <param name="ctrl_rate" type="int" value="15" />
+       <param name="xyTolerance" type="double" value="0.01" />
+       <!-- PP param -->
        <param name="gain_speed_target" type="double" value="1" />
        <param name="gain_curve" type="double" value="1.0" />
-       <param name="LookaHeadDis" type="double" value="0.15" />
-       <param name="LookaHeadGain" type="double" value="0.5" />
-       <param name="xyTolerance" type="double" value="0.01" />
-       <!--SMC_on = 0 is open loop, =1 is SMC with fast double power reaching law, =2 is reserved -->
+       <param name="LookaHeadDis" type="double" value="0.08" />
+       <param name="LookaHeadGain" type="double" value="0.25" />
+   
+      <!-- APP param -->
+      <param name="CurveGain" type="double" value="0.1" />
+      <param name="ErrorGain" type="double" value="0.1" />
+      <param name="accMax" type="double" value="1.0" />
+      <param name="init_LP" type="double" value="0.04" />
     </node>
     <!-- <node name="odom_fake" pkg="path_tracking" type="odom_fake.py" output="screen"/> -->
  </launch>
