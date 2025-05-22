@@ -33,6 +33,10 @@ double gain_curve;
 double LookaHeadDis;
 double LookaHeadGain;
 double xyTolerance;
+double acc_max;
+double k2,k3; 
+float error_total;
+double init_LP=0.01;
 std::string frame_id;
 void initdata()
 {
@@ -91,7 +95,7 @@ public:
     sub_odom =
         n_.subscribe("/odom_reset", 100, &SubscribeAndPublish::callback3, this);
     path_pub_ = n_.advertise<nav_msgs::Path>("robot_path", 1);
-    
+
     pose_pub = n_.advertise<geometry_msgs::PoseStamped>("desired_pose", 1);
     desired_path_pub_ = n_.advertise<nav_msgs::Path>("desired_path", 1);
 
@@ -139,7 +143,6 @@ int main(int argc, char **argv)
   return 0;
 }
 
-  
 void SubscribeAndPublish::generateDesiredPath()
 {
   desired_path_.poses.clear();
@@ -178,7 +181,7 @@ void SubscribeAndPublish::generateDesiredPath()
 
   desired_path_follow.header.stamp = ros::Time::now();
   // desired_path_.header.frame_id = frame_id;
-  desired_path_follow.header.frame_id=frame_id;
+  desired_path_follow.header.frame_id = frame_id;
   ROS_INFO("Generated desired_path_ with %lu poses", desired_path_follow.poses.size());
   desired_path_pub_.publish(desired_path_follow);
   is_desired_path_published = true;
@@ -212,7 +215,7 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
   if (!odom_input.pose.pose.position.x == 0 && !odom_input.twist.twist.linear.x == 0)
   { // Kiểm tra dữ liệu hợp lệ
     if (is_vision_ini == false)
-    {                                                // Khởi tạo lần đầu
+    {                                                        // Khởi tạo lần đầu
       n_.getParam("/PurePursuitControl/flag", flag);         // Lấy tham số flag
       n_.getParam("/PurePursuitControl/SMC_on", SMC_on);     // Lấy tham số SMC_on
       n_.getParam("/PurePursuitControl/Slip_com", Slip_com); // Lấy tham số Slip_com
@@ -222,8 +225,8 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       n_.getParam("/PurePursuitControl/gain_curve", gain_curve);
       n_.getParam("/PurePursuitControl/LookaHeadDis", LookaHeadDis);
       n_.getParam("/PurePursuitControl/LookaHeadGain", LookaHeadGain);
-       n_.getParam("/PurePursuitControl/xyTolerance", xyTolerance);
-      ROS_INFO("FRAME_ID:%s ctr_rate:%d,LookaHeadDis:%f", frame_id.c_str(), ctrl_rate,LookaHeadDis);
+      n_.getParam("/PurePursuitControl/xyTolerance", xyTolerance);
+      ROS_INFO("FRAME_ID:%s ctr_rate:%d,LookaHeadDis:%f", frame_id.c_str(), ctrl_rate, LookaHeadDis);
       Robo_State_init.X_a = (double)odom_input.pose.pose.position.x; // Đơn vị là m
       Robo_State_init.Y_a = (double)odom_input.pose.pose.position.y;
 
@@ -292,7 +295,6 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       tf::Quaternion qyaw2(qx, qy, qz, qw);
       Robo_State_cur.Theta_a = (tf::getYaw(qyaw2) - Robo_State_init.Theta_a);
 
-
       Robo_State_cur.dX_a = (double)odom_input.twist.twist.linear.x; // Đơn vị là m/s
       Robo_State_cur.dY_a = (double)odom_input.twist.twist.linear.y;
 
@@ -318,9 +320,9 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
 
       path_.poses.push_back(pose);           // Thêm pose vào quỹ đạo
       path_.header.stamp = ros::Time::now(); // Cập nhật timestamp cho path
-      path_.header.frame_id=frame_id;
+      path_.header.frame_id = frame_id;
       // Publish quỹ đạo
-      
+
       path_pub_.publish(path_);
       // get_desired_pose();
       int index_path;
@@ -341,7 +343,7 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       pose.pose.orientation.w = q.w();
 
       get_err_pose(); // Tính sai số giữa mong muốn và thực tế
-
+      // ROS_INFO("curvature:%f", getCurvature());
       if (SMC_on == 2)
       {
 
@@ -350,9 +352,7 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
         // run_A_SMC();
         // ROS_INFO("OKOK2");
 
-        
-
-        float error_total = sqrt(Robo_State_cur.X_e * Robo_State_cur.X_e + Robo_State_cur.Y_e * Robo_State_cur.Y_e);
+        error_total = sqrt(Robo_State_cur.X_e * Robo_State_cur.X_e + Robo_State_cur.Y_e * Robo_State_cur.Y_e);
         // if(error_x<0.005 && Robo_State_cur.Theta_e<=0.005 )
         // {
         //   Robo_State_cur.Theta_e=0;
@@ -371,11 +371,11 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
         float error_theta = Robo_State_cur.V_c;
 
         Robo_State_cur.V_c = gain_speed_target * error_total * cos(Robo_State_cur.Theta_e);
-        Robo_State_cur.W_c = gain_curve*curve * Robo_State_cur.V_c;
+        Robo_State_cur.W_c = gain_curve * curve * Robo_State_cur.V_c;
 
-        if (index_path >= desired_path_follow.poses.size()-1)
+        if (index_path >= desired_path_follow.poses.size() - 1)
         {
-          if (error_total <=xyTolerance)
+          if (error_total <= xyTolerance)
           {
             Robo_State_cur.V_c = 0;
             Robo_State_cur.W_c = 0;
@@ -446,12 +446,73 @@ void publish_pose()
   pose_msg.pose.orientation.w = quat.w();
   pose_pub.publish(pose_msg);
 }
+double getCurvature()
+{
+  double d[3][2];
+  for (int i = 0; i < 3; i++)
+  {
+    int k = old_nearest_point_index + i;
+    if (k >= desired_path_follow.poses.size())
+      k = desired_path_follow.poses.size();
+    d[i][0] = desired_path_follow.poses[k].pose.position.x;
+    d[i][1] = desired_path_follow.poses[k].pose.position.y;
+  }
+  double dx1x2 = (d[0][0] - d[1][0]) * (d[0][0] - d[1][0]) + (d[0][1] - d[1][1]) * (d[0][1] - d[1][1]);
+  double ta = sqrt(dx1x2);
+  double dx2x3 = (d[1][0] - d[2][0]) * (d[1][0] - d[2][0]) + (d[1][1] - d[2][1]) * (d[1][1] - d[2][1]);
+  double tb = sqrt(dx2x3);
+  double ts1 = (ta * ta) + tb * ta;
+  double ts2 = (tb * tb) + tb * ta;
+  // trong folder pp2 path_tracking may tinh
+  double a1 = d[1][0];
+  double a2 = d[0][0] * (-tb) / (ts1) + d[1][0] * (tb - ta) / (tb * ta) + d[2][0] * ta / (ts2);
+  double a3 = d[0][0] / (ts1)-d[1][0] / (ta * tb) + d[2][0] / (ts2);
+  double b1 = d[1][1];
+
+  double b2 = d[0][1] * (-tb) / (ts1) + d[1][1] * (tb - ta) / (tb * ta) + d[2][1] * ta / (ts2);
+  double b3 = d[0][1] / (ts1)-d[1][1] / (ta * tb) + d[2][1] / (ts2);
+  double tmp = a2 * a2 + b2 * b2;
+  if (tmp < 1e-6)
+  {
+    return 0.0;
+  }
+  double curve = (a3 * b2 - a2 * b3) / (pow(tmp, 1.5));
+  if (std::isnan(curve))
+  {
+    return 0.0;
+  }
+  return curve;
+}
 double calDistance(int ind)
 {
   double dx = desired_path_follow.poses[ind].pose.position.x - Robo_State_cur.X_a;
   double dy = desired_path_follow.poses[ind].pose.position.y - Robo_State_cur.Y_a;
   double dist = sqrt(dx * dx + dy * dy);
   return dist;
+}
+int calLookAheadPointInd(int index,double Lf)
+{
+  int ind_now=index;
+  
+  while (Lf > calDistance(ind_now))
+  {
+    if (ind_now + 1 >= desired_path_follow.poses.size())
+    {
+      break; //
+    }
+    ind_now += 1;
+  }
+  return ind_now;
+}
+double AdjustLP()
+{
+  double err_y=sqrt((Robo_State_cur.X_e*Robo_State_cur.X_e)+(Robo_State_cur.Y_e)*Robo_State_cur.Y_e)*sin(Robo_State_cur.Theta_e);
+  acc_max=1.0;
+  double k1=1.0/2*acc_max;
+  k2=0.4;
+  k3=0.1;
+  double LP=k1*(Robo_State_cur.V_a*Robo_State_cur.V_a)-k2*getCurvature()+k3*err_y+init_LP;
+  return LP;
 }
 int get_desired_path_pose()
 {
@@ -495,18 +556,10 @@ int get_desired_path_pose()
     }
     old_nearest_point_index = closest_idx;
   }
-
-  
-  double Lf = LookaHeadGain * Robo_State_cur.V_a + LookaHeadDis;
-  while (Lf > calDistance(closest_idx))
-  {
-    if (closest_idx + 1 >= desired_path_follow.poses.size())
-    {
-      break; //
-    }
-    closest_idx += 1;
-  }
-  int target_idx = (closest_idx) % desired_path_follow.poses.size();
+  // double Lf = LookaHeadGain * Robo_State_cur.V_a + LookaHeadDis;
+  double Lf=AdjustLP();
+  //
+  int target_idx = (calLookAheadPointInd(closest_idx,Lf)) % desired_path_follow.poses.size();
   Robo_State_des.X_c = desired_path_follow.poses[target_idx].pose.position.x;
   Robo_State_des.Y_c = desired_path_follow.poses[target_idx].pose.position.y;
   tf::Quaternion q(

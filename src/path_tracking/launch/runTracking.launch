@@ -15,7 +15,7 @@
        <param name="gain_speed_target" type="double" value="1" />
        <param name="gain_curve" type="double" value="1.0" />
        <param name="LookaHeadDis" type="double" value="0.15" />
-       <param name="LookaHeadGain" type="double" value="0.2" />
+       <param name="LookaHeadGain" type="double" value="0.5" />
        <param name="xyTolerance" type="double" value="0.01" />
        <!--SMC_on = 0 is open loop, =1 is SMC with fast double power reaching law, =2 is reserved -->
     </node>
