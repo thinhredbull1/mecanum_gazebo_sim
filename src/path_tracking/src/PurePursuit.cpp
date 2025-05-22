@@ -23,11 +23,16 @@
 #include <time.h>
 std::string line;
 std::ofstream in;
-
+nav_msgs::Path desired_path_follow;
 ros::Publisher pose_pub;
 int flag;
 int SMC_on;
 int Slip_com;
+double gain_speed_target;
+double gain_curve;
+double LookaHeadDis;
+double LookaHeadGain;
+double xyTolerance;
 std::string frame_id;
 void initdata()
 {
@@ -56,9 +61,9 @@ void initdata()
 
   time_interval = 0;
   time_file = 0;
-  r_path=1.0;
+  r_path = 1.0;
   is_vision_ini = false;
-
+  old_nearest_point_index = -1;
   memset(X_cStor, 0, sizeof(X_cStor));
   memset(Y_cStor, 0, sizeof(Y_cStor));
   memset(Theta_cStor, 0, sizeof(Theta_cStor));
@@ -76,53 +81,44 @@ void initdata()
   memset(Fil_Slip_C_Sort, 0, sizeof(Fil_Slip_C_Sort));
 }
 
-
 class SubscribeAndPublish
 {
 public:
   SubscribeAndPublish()
   {
- 
 
     pub_ = n_.advertise<geometry_msgs::Twist>("/cmd_vel", 100);
     sub_odom =
         n_.subscribe("/odom_reset", 100, &SubscribeAndPublish::callback3, this);
     path_pub_ = n_.advertise<nav_msgs::Path>("robot_path", 1);
-    path_.header.frame_id = frame_id;
+    
     pose_pub = n_.advertise<geometry_msgs::PoseStamped>("desired_pose", 1);
     desired_path_pub_ = n_.advertise<nav_msgs::Path>("desired_path", 1);
-    desired_path_.header.frame_id = frame_id;
+
     is_desired_path_published = false;
     ROS_INFO("path_pub_ initialized with topic: /robot_path");
     ROS_INFO("desired_path_pub_ initialized with topic: /desired_path");
   }
 
-
-
-
-
   void callback3(const nav_msgs::Odometry &odom_input);
   void generateDesiredPath();
-  void get_desired_pose_circle();
   int node_ok() { return n_.ok(); }
 
 private:
-  
   ros::NodeHandle n_;
   ros::Publisher pub_;
   ros::Subscriber sub_vis;
   ros::Subscriber sub_odom;
   ros::Subscriber sub_imu;
   nav_msgs::Path path_;
-  
+
   ros::Publisher path_pub_;
   ros::Publisher desired_path_pub_;
   nav_msgs::Path desired_path_;
-  nav_msgs::Path desired_path_follow;
+
   bool is_desired_path_published;
 
 }; // End of class SubscribeAndPublish
-
 
 int main(int argc, char **argv)
 {
@@ -131,95 +127,23 @@ int main(int argc, char **argv)
 
   // Create an object of class SubscribeAndPublish that will take care of
   // everything
-  initdata(); 
+  initdata();
 
   ROS_INFO("rosros1");
   SubscribeAndPublish SAPObject;
   counter = 0;
 
-  ros::MultiThreadedSpinner s(3); 
+  ros::MultiThreadedSpinner s(3);
   ros::spin(s);
 
   return 0;
 }
-void SubscribeAndPublish::get_desired_pose_circle()
-{
-  if (desired_path_.poses.empty())
-  {
-    ROS_WARN("desired_path_ is empty!");
-    return;
-  }
 
-  // Tìm điểm gần nhất trên desired_path_
-  double min_dist = std::numeric_limits<double>::max();
-  size_t closest_idx = 0;
-  double cur_x = Robo_State_cur.X_a + Robo_State_init.X_a;
-  double cur_y = Robo_State_cur.Y_a + Robo_State_init.Y_a;
-
-  for (size_t i = 0; i < desired_path_.poses.size(); ++i)
-  {
-    double dx = desired_path_.poses[i].pose.position.x - Robo_State_cur.X_a;
-    double dy = desired_path_.poses[i].pose.position.y - Robo_State_cur.Y_a;
-    double dist = sqrt(dx * dx + dy * dy);
-    if (dist < min_dist)
-    {
-      min_dist = dist;
-      closest_idx = i;
-    }
-  }
-
-  // Lấy điểm tiếp theo (hoặc điểm gần nhất + 1 nếu muốn robot bám tuần tự)
-  size_t target_idx = (closest_idx + 1) % desired_path_.poses.size(); // Điểm tiếp theo trên vòng tròn
-  Robo_State_des.X_c = desired_path_.poses[target_idx].pose.position.x;
-  Robo_State_des.Y_c = desired_path_.poses[target_idx].pose.position.y;
-
-  tf::Quaternion q(
-      desired_path_.poses[target_idx].pose.orientation.x,
-      desired_path_.poses[target_idx].pose.orientation.y,
-      desired_path_.poses[target_idx].pose.orientation.z,
-      desired_path_.poses[target_idx].pose.orientation.w);
-  tf::Matrix3x3 m(q);
-  double roll, pitch, yaw;
-  m.getRPY(roll, pitch, yaw);
-  Robo_State_des.Theta_c = yaw;
-  tf::Quaternion q2(
-      desired_path_.poses[closest_idx].pose.orientation.x,
-      desired_path_.poses[closest_idx].pose.orientation.y,
-      desired_path_.poses[closest_idx].pose.orientation.z,
-      desired_path_.poses[closest_idx].pose.orientation.w);
-  tf::Matrix3x3 m2(q2);
-
-  m2.getRPY(roll, pitch, yaw);
-
-  // Tính vận tốc mong muốn dựa trên khoảng cách đến điểm tiếp theo
-  double dx = desired_path_.poses[target_idx].pose.orientation.x - desired_path_.poses[closest_idx].pose.orientation.x;
-  double dy = desired_path_.poses[target_idx].pose.orientation.y - desired_path_.poses[closest_idx].pose.orientation.y;
-  double dtheta = Robo_State_des.Theta_c - yaw;
-  if (dtheta > M_PI)
-    dtheta -= 2 * M_PI;
-  else if (dtheta < -M_PI)
-    dtheta += 2 * M_PI;
-
-  double dt = 1.0 / ctrl_rate; // Giả sử ctrl_rate là tần số điều khiển (ví dụ: 30 Hz)
-  Robo_State_des.V_c = sqrt(dx * dx + dy * dy) / dt;
-  Robo_State_des.W_c = dtheta / dt;
-
-  // Giới hạn vận tốc
-  if (Robo_State_des.V_c > 0.2)
-    Robo_State_des.V_c = 0.2;
-  else if (Robo_State_des.V_c < -0.2)
-    Robo_State_des.V_c = -0.2;
-  if (Robo_State_des.W_c > 0.2)
-    Robo_State_des.W_c = 0.2;
-  else if (Robo_State_des.W_c < -0.2)
-    Robo_State_des.W_c = -0.2;
-
-  traj_counter++;
-}
+  
 void SubscribeAndPublish::generateDesiredPath()
 {
   desired_path_.poses.clear();
-  
+
   double r = r_path; // Bán kính 1.5m
   int num_points = 360;
   double base_x = Robo_State_init.X_a;
@@ -239,7 +163,7 @@ void SubscribeAndPublish::generateDesiredPath()
     // pose.pose.position.x = cos(base_theta) * x_c_rel - sin(base_theta) * y_c_rel;
     // pose.pose.position.y = sin(base_theta) * x_c_rel + cos(base_theta) * y_c_rel;
     pose.pose.position.x = x_c_rel;
-    pose.pose.position.y =  y_c_rel;
+    pose.pose.position.y = y_c_rel;
     pose.pose.position.z = 0.0;
 
     tf::Quaternion q;
@@ -250,19 +174,11 @@ void SubscribeAndPublish::generateDesiredPath()
     pose.pose.orientation.w = q.w();
 
     desired_path_follow.poses.push_back(pose);
-
-    pose.pose.position.x = x_c_rel;
-    pose.pose.position.y = y_c_rel;
-    pose.pose.position.z = 0.0;
-    q.setRPY(0, 0, atan2(y_c_rel - 0.5, x_c_rel) + pi / 2);
-    pose.pose.orientation.x = q.x();
-    pose.pose.orientation.y = q.y();
-    pose.pose.orientation.z = q.z();
-    pose.pose.orientation.w = q.w();
-    desired_path_.poses.push_back(pose);
   }
 
   desired_path_follow.header.stamp = ros::Time::now();
+  // desired_path_.header.frame_id = frame_id;
+  desired_path_follow.header.frame_id=frame_id;
   ROS_INFO("Generated desired_path_ with %lu poses", desired_path_follow.poses.size());
   desired_path_pub_.publish(desired_path_follow);
   is_desired_path_published = true;
@@ -273,8 +189,6 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
   //  for wheel odometry data
   ros::Rate loop_rate(ctrl_rate);
   geometry_msgs::Twist output;
-
-
 
   if (counter == 0)
   {
@@ -298,13 +212,18 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
   if (!odom_input.pose.pose.position.x == 0 && !odom_input.twist.twist.linear.x == 0)
   { // Kiểm tra dữ liệu hợp lệ
     if (is_vision_ini == false)
-    {                                                                // Khởi tạo lần đầu
-        n_.getParam("/PidControl/flag", flag);         // Lấy tham số flag
-        n_.getParam("/PidControl/SMC_on", SMC_on);     // Lấy tham số SMC_on
-        n_.getParam("/PidControl/Slip_com", Slip_com); // Lấy tham số Slip_com
-        n_.getParam("/PidControl/frame_id",frame_id);
-        n_.getParam("/PidControl/ctrl_rate",ctrl_rate);
-        ROS_INFO("FRAME_ID:%s ctr_rate:%d",frame_id.c_str(),ctrl_rate);
+    {                                                // Khởi tạo lần đầu
+      n_.getParam("/PurePursuitControl/flag", flag);         // Lấy tham số flag
+      n_.getParam("/PurePursuitControl/SMC_on", SMC_on);     // Lấy tham số SMC_on
+      n_.getParam("/PurePursuitControl/Slip_com", Slip_com); // Lấy tham số Slip_com
+      n_.getParam("/PurePursuitControl/frame_id", frame_id);
+      n_.getParam("/PurePursuitControl/ctrl_rate", ctrl_rate);
+      n_.getParam("/PurePursuitControl/gain_speed_target", gain_speed_target);
+      n_.getParam("/PurePursuitControl/gain_curve", gain_curve);
+      n_.getParam("/PurePursuitControl/LookaHeadDis", LookaHeadDis);
+      n_.getParam("/PurePursuitControl/LookaHeadGain", LookaHeadGain);
+       n_.getParam("/PurePursuitControl/xyTolerance", xyTolerance);
+      ROS_INFO("FRAME_ID:%s ctr_rate:%d,LookaHeadDis:%f", frame_id.c_str(), ctrl_rate,LookaHeadDis);
       Robo_State_init.X_a = (double)odom_input.pose.pose.position.x; // Đơn vị là m
       Robo_State_init.Y_a = (double)odom_input.pose.pose.position.y;
 
@@ -357,8 +276,8 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       is_vision_ini = true; // Đánh dấu đã khởi tạo
       Robo_State_cur.V_c = 0;
       Robo_State_cur.W_c = 0;
+      desired_path_.poses.clear();
       generateDesiredPath();
-      // desired_path_.poses.clear();
     }
     else
     {                                                                                     // Cập nhật trạng thái hiện tại
@@ -373,52 +292,14 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       tf::Quaternion qyaw2(qx, qy, qz, qw);
       Robo_State_cur.Theta_a = (tf::getYaw(qyaw2) - Robo_State_init.Theta_a);
 
-      // if (flag == 1)
-      // {
-      //   if (traj_counter > 300)
-      //   {
-      //     if (Robo_State_cur.Theta_a < 0)
-      //     {
-      //       Robo_State_cur.Theta_a = Robo_State_cur.Theta_a + 2 * pi;
-      //     }
-      //   }
-      // }
-      // else if (flag == 2)
-      // {
-      //   if (Robo_State_cur.Theta_a > pi)
-      //   {
-      //     Robo_State_cur.Theta_a = Robo_State_cur.Theta_a - 2 * pi;
-      //   }
-      //   else if (Robo_State_cur.Theta_a < -pi)
-      //   {
-      //     Robo_State_cur.Theta_a = Robo_State_cur.Theta_a + 2 * pi;
-      //   }
-      // }
 
-      Robo_State_cur.dX_a = (double)odom_input.twist.twist.linear.x ; // Đơn vị là m/s
+      Robo_State_cur.dX_a = (double)odom_input.twist.twist.linear.x; // Đơn vị là m/s
       Robo_State_cur.dY_a = (double)odom_input.twist.twist.linear.y;
 
       Robo_State_cur.V_a = Robo_State_cur.dX_a;
       Robo_State_cur.acc_theta = ((double)odom_input.twist.twist.angular.z - Robo_State_cur.W_a) / (1.0 / 15.0);
       Robo_State_cur.W_a = (double)odom_input.twist.twist.angular.z; // Vận tốc góc yaw
 
-      // Giới hạn vận tốc
-      // if (Robo_State_cur.V_a >= 0.2)
-      // {
-      //   Robo_State_cur.V_a = 0.2;
-      // }
-      // else if (Robo_State_cur.V_a <= -0.2)
-      // {
-      //   Robo_State_cur.V_a = -0.2;
-      // }
-      // if (Robo_State_cur.W_a >= 0.2)
-      // {
-      //   Robo_State_cur.W_a = 0.2;
-      // }
-      // else if (Robo_State_cur.W_a <= -0.2)
-      // {
-      //   Robo_State_cur.W_a = -0.2;
-      // }
       geometry_msgs::PoseStamped pose;
       pose.header.stamp = ros::Time::now();
       pose.header.frame_id = frame_id; // Frame cố định, phù hợp với path_
@@ -437,10 +318,14 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
 
       path_.poses.push_back(pose);           // Thêm pose vào quỹ đạo
       path_.header.stamp = ros::Time::now(); // Cập nhật timestamp cho path
-
+      path_.header.frame_id=frame_id;
       // Publish quỹ đạo
+      
       path_pub_.publish(path_);
-      get_desired_pose();
+      // get_desired_pose();
+      int index_path;
+
+      index_path = get_desired_path_pose();
       publish_pose();
       pose.header.stamp = ros::Time::now();
       pose.header.frame_id = frame_id;
@@ -455,22 +340,52 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       pose.pose.orientation.z = q.z();
       pose.pose.orientation.w = q.w();
 
-      // desired_path_.poses.push_back(pose);
-      // desired_path_pub_.publish(desired_path_);
-      // get_desired_pose_circle();
       get_err_pose(); // Tính sai số giữa mong muốn và thực tế
- 
 
       if (SMC_on == 2)
       {
 
         // get_SMC_S();
-     
+
         // run_A_SMC();
         // ROS_INFO("OKOK2");
 
-        float p = 2.0;
         
+
+        float error_total = sqrt(Robo_State_cur.X_e * Robo_State_cur.X_e + Robo_State_cur.Y_e * Robo_State_cur.Y_e);
+        // if(error_x<0.005 && Robo_State_cur.Theta_e<=0.005 )
+        // {
+        //   Robo_State_cur.Theta_e=0;
+        //   ROS_INFO("DONE");
+        // }
+        // float k3 = 1.0;
+        // float k2 = 1.0;
+        // // float delta_target=Robo_State_cur.Theta_e+Robo_State_cur.Theta_a-Robo_State_des.Theta_c;
+        // float delta_target = Robo_State_cur.Theta_e + Robo_State_cur.Theta_a;
+        // float ts = (Robo_State_cur.Theta_e + k3 * delta_target) / Robo_State_cur.Theta_e;
+        // float error_theta=k2*Robo_State_cur.Theta_e+1*sin(Robo_State_cur.Theta_e)*cos(Robo_State_cur.Theta_e)*ts;
+        float curve = (2 * sin(Robo_State_cur.Theta_e)) / (error_total); // curve = 1/R --> w=v*curve
+
+        // if(error_x<0.01)index_path+=5;
+
+        float error_theta = Robo_State_cur.V_c;
+
+        Robo_State_cur.V_c = gain_speed_target * error_total * cos(Robo_State_cur.Theta_e);
+        Robo_State_cur.W_c = gain_curve*curve * Robo_State_cur.V_c;
+
+        if (index_path >= desired_path_follow.poses.size()-1)
+        {
+          if (error_total <=xyTolerance)
+          {
+            Robo_State_cur.V_c = 0;
+            Robo_State_cur.W_c = 0;
+            ROS_INFO("DONE LOOP");
+          }
+        }
+        else
+        {
+          // ROS_INFO("error_total :%f err_x:%f error_y:%f robot_state_theta_e:%f index:%d", error_total, Robo_State_cur.X_e, Robo_State_cur.Y_e, Robo_State_cur.Theta_e, index_path);
+        }
         output.angular.z = Robo_State_cur.W_c;
         output.linear.x = Robo_State_cur.V_c;
       }
@@ -479,7 +394,7 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
 
         // ROS_INFO("OKOK");
         // run_SMC();
-  
+
         output.angular.z = Robo_State_cur.W_c;
         output.linear.x = Robo_State_cur.V_c;
       }
@@ -489,10 +404,11 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
         // Chuyển động vòng hở
         Robo_State_cur.W_c = Robo_State_des.W_c;
         Robo_State_cur.V_c = Robo_State_des.V_c;
-      
+
         output.angular.z = Robo_State_cur.W_c;
         output.linear.x = Robo_State_cur.V_c;
       }
+      // ROS_INFO("error_x :%f error_y:%f robot_state_theta_e:%f index:%d", Robo_State_cur.X_e, Robo_State_cur.Y_e, Robo_State_cur.Theta_e,index_path);
     }
   }
   else
@@ -512,48 +428,118 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
 
 void publish_pose()
 {
-    geometry_msgs::PoseStamped pose_msg;
-    pose_msg.header.stamp = ros::Time::now();
-    pose_msg.header.frame_id = frame_id; // Frame cố định, có thể đổi thành "odom"
+  geometry_msgs::PoseStamped pose_msg;
+  pose_msg.header.stamp = ros::Time::now();
+  pose_msg.header.frame_id = frame_id; // Frame cố định, có thể đổi thành "odom"
 
-    // Gán vị trí
-    pose_msg.pose.position.x = Robo_State_des.X_c;
-    pose_msg.pose.position.y = Robo_State_des.Y_c;
-    pose_msg.pose.position.z = 0.0; // 2D nên z = 0
+  // Gán vị trí
+  pose_msg.pose.position.x = Robo_State_des.X_c;
+  pose_msg.pose.position.y = Robo_State_des.Y_c;
+  pose_msg.pose.position.z = 0.0; // 2D nên z = 0
 
-    // Chuyển góc Theta_c thành quaternion
-    tf2::Quaternion quat;
-    quat.setRPY(0, 0, Robo_State_des.Theta_c); // Roll = 0, Pitch = 0, Yaw = Theta_c
-    pose_msg.pose.orientation.x = quat.x();
-    pose_msg.pose.orientation.y = quat.y();
-    pose_msg.pose.orientation.z = quat.z();
-    pose_msg.pose.orientation.w = quat.w();
-    pose_pub.publish(pose_msg);
+  // Chuyển góc Theta_c thành quaternion
+  tf2::Quaternion quat;
+  quat.setRPY(0, 0, Robo_State_des.Theta_c); // Roll = 0, Pitch = 0, Yaw = Theta_c
+  pose_msg.pose.orientation.x = quat.x();
+  pose_msg.pose.orientation.y = quat.y();
+  pose_msg.pose.orientation.z = quat.z();
+  pose_msg.pose.orientation.w = quat.w();
+  pose_pub.publish(pose_msg);
 }
+double calDistance(int ind)
+{
+  double dx = desired_path_follow.poses[ind].pose.position.x - Robo_State_cur.X_a;
+  double dy = desired_path_follow.poses[ind].pose.position.y - Robo_State_cur.Y_a;
+  double dist = sqrt(dx * dx + dy * dy);
+  return dist;
+}
+int get_desired_path_pose()
+{
+  if (desired_path_follow.poses.empty())
+  {
+    ROS_WARN("desired_path_ is empty!");
+    return 0;
+  }
+  double min_dist = std::numeric_limits<double>::max();
+  size_t closest_idx = 0;
+  if (old_nearest_point_index == -1)
+  {
+    for (size_t i = 0; i < desired_path_follow.poses.size(); ++i)
+    {
+      double dist = calDistance(i);
+      if (dist < min_dist)
+      {
+        min_dist = dist;
+        closest_idx = i;
+        old_nearest_point_index = i;
+      }
+    }
+  }
+  else
+  {
+    closest_idx = old_nearest_point_index;
+    double distance_this_index = calDistance(closest_idx);
+    while (true)
+    {
+      if (closest_idx + 1 >= desired_path_follow.poses.size())
+      {
+        break;
+      }
+      double distance_next_index = calDistance(closest_idx + 1);
+      if (distance_this_index < distance_next_index)
+      {
+        break;
+      }
+      closest_idx = closest_idx + 1;
+      distance_this_index = distance_next_index;
+    }
+    old_nearest_point_index = closest_idx;
+  }
 
+  
+  double Lf = LookaHeadGain * Robo_State_cur.V_a + LookaHeadDis;
+  while (Lf > calDistance(closest_idx))
+  {
+    if (closest_idx + 1 >= desired_path_follow.poses.size())
+    {
+      break; //
+    }
+    closest_idx += 1;
+  }
+  int target_idx = (closest_idx) % desired_path_follow.poses.size();
+  Robo_State_des.X_c = desired_path_follow.poses[target_idx].pose.position.x;
+  Robo_State_des.Y_c = desired_path_follow.poses[target_idx].pose.position.y;
+  tf::Quaternion q(
+      desired_path_follow.poses[target_idx].pose.orientation.x,
+      desired_path_follow.poses[target_idx].pose.orientation.y,
+      desired_path_follow.poses[target_idx].pose.orientation.z,
+      desired_path_follow.poses[target_idx].pose.orientation.w);
+  tf::Matrix3x3 m(q);
+  double roll, pitch, yaw;
+  m.getRPY(roll, pitch, yaw);
+  Robo_State_des.Theta_c = yaw;
+  return target_idx;
+}
 void get_desired_pose()
 {
- 
+
   if (flag == 1)
   {
-    
     double r = r_path;
     double t = 60;
     Robo_State_des.X_c = r * sin(traj_counter / ctrl_rate * 2 * pi / t);
     Robo_State_des.Y_c = -r * cos(traj_counter / ctrl_rate * 2 * pi / t) + r;
-
     TransStorage(4);
-
     time_interval = sys_time_his[0] - sys_time_his[1];
 
     double X_d = 0;
     double Y_d = 0;
     X_d =
-        CentralDerivative(time_interval, 0, 0); 
+        CentralDerivative(time_interval, 0, 0);
     Y_d = CentralDerivative(time_interval, 0, 1);
     Robo_State_des.V_c =
-        sqrt(X_d * X_d + Y_d * Y_d) * 1000; 
- 
+        sqrt(X_d * X_d + Y_d * Y_d) * 1000;
+
     if (Robo_State_des.V_c >= 0.2)
     {
       Robo_State_des.V_c = 0.2;
@@ -569,7 +555,7 @@ void get_desired_pose()
 
     if ((Robo_State_des.Theta_c < (0)) &&
         (Robo_State_des.Theta_c >= (-pi / 2)) &&
-        (traj_counter > 300)) 
+        (traj_counter > 300))
     {
       Robo_State_des.Theta_c = Robo_State_des.Theta_c + 2 * pi;
     }
@@ -601,7 +587,7 @@ void get_desired_pose()
   }
   else if (flag == 2)
   {
-   
+
     double r = 0.4;
     Robo_State_des.X_c = 2 * pi * traj_counter / ctrl_rate / 120;
     Robo_State_des.Y_c = r * cos(Robo_State_des.X_c * 3.5) - r;
@@ -613,10 +599,10 @@ void get_desired_pose()
     double X_d = 0;
     double Y_d = 0;
     X_d =
-        CentralDerivative(time_interval, 0, 0); 
+        CentralDerivative(time_interval, 0, 0);
     Y_d = CentralDerivative(time_interval, 0, 1);
     Robo_State_des.V_c =
-        sqrt(X_d * X_d + Y_d * Y_d) * 1000; 
+        sqrt(X_d * X_d + Y_d * Y_d) * 1000;
     // if (Robo_State_des.V_c >= 0.2)
     // {
     //   Robo_State_des.V_c = 0.2;
@@ -641,7 +627,7 @@ void get_desired_pose()
     ROS_INFO("cos Theta_c is: %lf ", (double)Robo_State_des.Theta_c);
     TransStorage(5);
     Robo_State_des.W_c =
-        CentralDerivative(time_interval, 0, 2) * 1000; 
+        CentralDerivative(time_interval, 0, 2) * 1000;
     if (traj_counter <= 2)
     {
       Robo_State_des.W_c = 0;
@@ -671,14 +657,26 @@ double sat(double s, double eps)
 void get_err_pose()
 {
 
-  Robo_State_cur.X_e =
-      cos(Robo_State_des.Theta_c) * (Robo_State_des.X_c - Robo_State_cur.X_a) +
-      sin(Robo_State_des.Theta_c) * (Robo_State_des.Y_c - Robo_State_cur.Y_a);
-  Robo_State_cur.Y_e =
-      -sin(Robo_State_des.Theta_c) * (Robo_State_des.X_c - Robo_State_cur.X_a) +
-      cos(Robo_State_des.Theta_c) * (Robo_State_des.Y_c - Robo_State_cur.Y_a);
-  Robo_State_cur.Theta_e = (Robo_State_des.Theta_c - Robo_State_cur.Theta_a);
-  // ROS_INFO("des_yaw:%f yaw:%f ", Robo_State_des.Theta_c, Robo_State_cur.Theta_a);
+  // Robo_State_cur.X_e =
+  //     cos(Robo_State_des.Theta_c) * (Robo_State_des.X_c - Robo_State_cur.X_a) +
+  //     sin(Robo_State_des.Theta_c) * (Robo_State_des.Y_c - Robo_State_cur.Y_a);
+  // Robo_State_cur.Y_e =
+  //     -sin(Robo_State_des.Theta_c) * (Robo_State_des.X_c - Robo_State_cur.X_a) +
+  //     cos(Robo_State_des.Theta_c) * (Robo_State_des.Y_c - Robo_State_cur.Y_a);
+  // Robo_State_cur.Theta_e = (Robo_State_des.Theta_c - Robo_State_cur.Theta_a);
+  Robo_State_cur.X_e = Robo_State_des.X_c - Robo_State_cur.X_a;
+  Robo_State_cur.Y_e = Robo_State_des.Y_c - Robo_State_cur.Y_a;
+  // if(Robo_State_cur.X_e==0)Robo_State_cur.Theta_e=0;
+  if (Robo_State_cur.Theta_a > pi)
+  {
+    Robo_State_cur.Theta_a = Robo_State_cur.Theta_a - 2 * pi;
+  }
+  else if (Robo_State_cur.Theta_a < -pi)
+  {
+    Robo_State_cur.Theta_a = Robo_State_cur.Theta_a + 2 * pi;
+  }
+  Robo_State_cur.Theta_e = atan2(Robo_State_cur.Y_e, Robo_State_cur.X_e) - Robo_State_cur.Theta_a;
+  // ROS_INFO("des_yaw:%f yaw:%f ", atan2(Robo_State_cur.Y_e, Robo_State_cur.X_e), Robo_State_cur.Theta_a);
 
   if (flag == 1)
   {
@@ -705,7 +703,7 @@ void TransStorage(int tran_signature)
   if (tran_signature == 0)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       X_cStor[i + 1] = X_cStor[i];
       Y_cStor[i + 1] = Y_cStor[i];
@@ -718,7 +716,7 @@ void TransStorage(int tran_signature)
   else if (tran_signature == 1)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       V_cStor[i + 1] = V_cStor[i];
       W_cStor[i + 1] = W_cStor[i];
@@ -750,7 +748,7 @@ void TransStorage(int tran_signature)
   else if (tran_signature == 4)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       X_cStor[i + 1] = X_cStor[i];
       Y_cStor[i + 1] = Y_cStor[i];
@@ -770,7 +768,7 @@ void TransStorage(int tran_signature)
   else if (tran_signature == 6)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       Slip_cStor[i + 1] = Slip_cStor[i];
     }
@@ -779,14 +777,13 @@ void TransStorage(int tran_signature)
   else if (tran_signature == 7)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       Slip_cvStor[i + 1] = Slip_cvStor[i];
     }
     Slip_cvStor[0] = slip_cv;
   }
 }
-
 
 double CentralDerivative(double time, int i, int signature)
 {
@@ -829,7 +826,6 @@ double sysLocalTime()
   return time_now = tv.tv_sec * 1000 + tv.tv_usec / 1000; // ms
 }
 
-
 std::string int2string(int value)
 {
   std::stringstream ss;
@@ -837,9 +833,8 @@ std::string int2string(int value)
   return ss.str();
 }
 
-
 void GetEulerAngles(double qx, double qy, double qz, double qw, double &pitch,
-                    double &roll, double &yaw) 
+                    double &roll, double &yaw)
 {
   const double w2 = qw * qw;
   const double x2 = qx * qx;

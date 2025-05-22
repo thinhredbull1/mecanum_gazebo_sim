@@ -74,7 +74,7 @@ double Y_cStor[STOR_LEN];
 double Theta_cStor[STOR_LEN];
 double V_cStor[STOR_LEN];
 double W_cStor[STOR_LEN];
-
+int old_nearest_point_index;
 double traj_counter;
 double sys_time_his[STOR_LEN];
 
@@ -127,7 +127,7 @@ void run_A_SMC();
 void set_paras();
 void get_ASMC_D();
 void get_SMC_S();
-
+int get_desired_path_pose();
 void get_slip();
 void slip_compen();
 void get_desired_pose_circle();
@@ -141,6 +141,7 @@ double Sgn2(double val, double epsilon);
 double sysLocalTime();//获取系统时间，精确到毫秒
 double real_time_span();//计算真实的时间间隔
 void run_ASMCmatLab();
+double calDistance(int index);
 void writefile();//建立新文档并写入
 std::string int2string(int value);
 double saturation(double factor);

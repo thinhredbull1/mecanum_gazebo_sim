@@ -7,9 +7,4 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/thinh/nexus_4wd_mecanum_simulator/devel:$CMAKE_PREFIX_PATH"
-export LD_LIBRARY_PATH="/home/thinh/nexus_4wd_mecanum_simulator/devel/lib:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="/home/thinh/nexus_4wd_mecanum_simulator/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PWD='/home/thinh/nexus_4wd_mecanum_simulator/build'
-export PYTHONPATH="/home/thinh/nexus_4wd_mecanum_simulator/devel/lib/python3/dist-packages:$PYTHONPATH"
-export ROS_PACKAGE_PATH="/home/thinh/nexus_4wd_mecanum_simulator/src:$ROS_PACKAGE_PATH"

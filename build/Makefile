@@ -415,6 +415,19 @@ geometry_msgs_generate_messages_lisp/fast:
 .PHONY : geometry_msgs_generate_messages_lisp/fast
 
 #=============================================================================
+# Target rules for targets named roscpp_generate_messages_py
+
+# Build rule for target.
+roscpp_generate_messages_py: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 roscpp_generate_messages_py
+.PHONY : roscpp_generate_messages_py
+
+# fast build rule for target.
+roscpp_generate_messages_py/fast:
+	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build
+.PHONY : roscpp_generate_messages_py/fast
+
+#=============================================================================
 # Target rules for targets named std_msgs_generate_messages_lisp
 
 # Build rule for target.
@@ -519,32 +532,6 @@ geometry_msgs_generate_messages_py/fast:
 .PHONY : geometry_msgs_generate_messages_py/fast
 
 #=============================================================================
-# Target rules for targets named roscpp_generate_messages_py
-
-# Build rule for target.
-roscpp_generate_messages_py: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 roscpp_generate_messages_py
-.PHONY : roscpp_generate_messages_py
-
-# fast build rule for target.
-roscpp_generate_messages_py/fast:
-	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build
-.PHONY : roscpp_generate_messages_py/fast
-
-#=============================================================================
-# Target rules for targets named PidControl
-
-# Build rule for target.
-PidControl: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 PidControl
-.PHONY : PidControl
-
-# fast build rule for target.
-PidControl/fast:
-	$(MAKE) -f path_tracking/CMakeFiles/PidControl.dir/build.make path_tracking/CMakeFiles/PidControl.dir/build
-.PHONY : PidControl/fast
-
-#=============================================================================
 # Target rules for targets named std_msgs_generate_messages_py
 
 # Build rule for target.
@@ -569,6 +556,19 @@ sensor_msgs_generate_messages_cpp: cmake_check_build_system
 sensor_msgs_generate_messages_cpp/fast:
 	$(MAKE) -f path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/build.make path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/build
 .PHONY : sensor_msgs_generate_messages_cpp/fast
+
+#=============================================================================
+# Target rules for targets named PurePursuitControl
+
+# Build rule for target.
+PurePursuitControl: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 PurePursuitControl
+.PHONY : PurePursuitControl
+
+# fast build rule for target.
+PurePursuitControl/fast:
+	$(MAKE) -f path_tracking/CMakeFiles/PurePursuitControl.dir/build.make path_tracking/CMakeFiles/PurePursuitControl.dir/build
+.PHONY : PurePursuitControl/fast
 
 #=============================================================================
 # Target rules for targets named std_msgs_generate_messages_nodejs
@@ -654,6 +654,7 @@ help:
 	@echo "... roscpp_generate_messages_nodejs"
 	@echo "... std_msgs_generate_messages_eus"
 	@echo "... geometry_msgs_generate_messages_lisp"
+	@echo "... roscpp_generate_messages_py"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... rosgraph_msgs_generate_messages_nodejs"
 	@echo "... sensor_msgs_generate_messages_eus"
@@ -662,10 +663,9 @@ help:
 	@echo "... sensor_msgs_generate_messages_nodejs"
 	@echo "... sensor_msgs_generate_messages_py"
 	@echo "... geometry_msgs_generate_messages_py"
-	@echo "... roscpp_generate_messages_py"
-	@echo "... PidControl"
 	@echo "... std_msgs_generate_messages_py"
 	@echo "... sensor_msgs_generate_messages_cpp"
+	@echo "... PurePursuitControl"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
 	@echo "... rosgraph_msgs_generate_messages_cpp"

@@ -214,10 +214,10 @@ catkin_package(
 catkin_install_python(PROGRAMS src/odom_fake.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-add_executable(PidControl
+add_executable(PurePursuitControl
 include/path_tracking/data_def.h
-  src/PID.cpp
+  src/PurePursuit.cpp
 )
-add_dependencies(PidControl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(PidControl
+add_dependencies(PurePursuitControl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(PurePursuitControl
   ${catkin_LIBRARIES})

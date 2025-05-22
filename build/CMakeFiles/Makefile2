@@ -136,7 +136,7 @@ gtest/googletest/clean: gtest/googletest/CMakeFiles/gtest.dir/clean
 # Directory level rules for directory path_tracking
 
 # Recursive "all" directory target.
-path_tracking/all: path_tracking/CMakeFiles/PidControl.dir/all
+path_tracking/all: path_tracking/CMakeFiles/PurePursuitControl.dir/all
 
 .PHONY : path_tracking/all
 
@@ -156,6 +156,7 @@ path_tracking/clean: path_tracking/CMakeFiles/std_msgs_generate_messages_cpp.dir
 path_tracking/clean: path_tracking/CMakeFiles/roscpp_generate_messages_nodejs.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/std_msgs_generate_messages_eus.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/clean
+path_tracking/clean: path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/std_msgs_generate_messages_lisp.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/sensor_msgs_generate_messages_eus.dir/clean
@@ -164,10 +165,9 @@ path_tracking/clean: path_tracking/CMakeFiles/sensor_msgs_generate_messages_lisp
 path_tracking/clean: path_tracking/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/sensor_msgs_generate_messages_py.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean
-path_tracking/clean: path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/clean
-path_tracking/clean: path_tracking/CMakeFiles/PidControl.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/std_msgs_generate_messages_py.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/clean
+path_tracking/clean: path_tracking/CMakeFiles/PurePursuitControl.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/std_msgs_generate_messages_nodejs.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/geometry_msgs_generate_messages_eus.dir/clean
 path_tracking/clean: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/clean
@@ -690,6 +690,33 @@ path_tracking/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/clean:
 .PHONY : path_tracking/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/clean
 
 #=============================================================================
+# Target rules for target path_tracking/CMakeFiles/roscpp_generate_messages_py.dir
+
+# All Build rule for target.
+path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/all:
+	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/depend
+	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles --progress-num= "Built target roscpp_generate_messages_py"
+.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/all
+
+# Build rule for subdir invocation for target.
+path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles 0
+.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
+
+# Convenience name for target.
+roscpp_generate_messages_py: path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
+
+.PHONY : roscpp_generate_messages_py
+
+# clean rule for target.
+path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/clean:
+	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/clean
+.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/clean
+
+#=============================================================================
 # Target rules for target path_tracking/CMakeFiles/std_msgs_generate_messages_lisp.dir
 
 # All Build rule for target.
@@ -906,84 +933,6 @@ path_tracking/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean:
 .PHONY : path_tracking/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean
 
 #=============================================================================
-# Target rules for target path_tracking/CMakeFiles/roscpp_generate_messages_py.dir
-
-# All Build rule for target.
-path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/all:
-	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/depend
-	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles --progress-num= "Built target roscpp_generate_messages_py"
-.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/all
-
-# Build rule for subdir invocation for target.
-path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles 0
-	$(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles 0
-.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
-
-# Convenience name for target.
-roscpp_generate_messages_py: path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
-
-.PHONY : roscpp_generate_messages_py
-
-# clean rule for target.
-path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/clean:
-	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/clean
-.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/clean
-
-#=============================================================================
-# Target rules for target path_tracking/CMakeFiles/PidControl.dir
-
-# All Build rule for target.
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_lisp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_eus.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_cpp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_py.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
-path_tracking/CMakeFiles/PidControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/all
-	$(MAKE) -f path_tracking/CMakeFiles/PidControl.dir/build.make path_tracking/CMakeFiles/PidControl.dir/depend
-	$(MAKE) -f path_tracking/CMakeFiles/PidControl.dir/build.make path_tracking/CMakeFiles/PidControl.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles --progress-num=1,2 "Built target PidControl"
-.PHONY : path_tracking/CMakeFiles/PidControl.dir/all
-
-# Build rule for subdir invocation for target.
-path_tracking/CMakeFiles/PidControl.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/PidControl.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles 0
-.PHONY : path_tracking/CMakeFiles/PidControl.dir/rule
-
-# Convenience name for target.
-PidControl: path_tracking/CMakeFiles/PidControl.dir/rule
-
-.PHONY : PidControl
-
-# clean rule for target.
-path_tracking/CMakeFiles/PidControl.dir/clean:
-	$(MAKE) -f path_tracking/CMakeFiles/PidControl.dir/build.make path_tracking/CMakeFiles/PidControl.dir/clean
-.PHONY : path_tracking/CMakeFiles/PidControl.dir/clean
-
-#=============================================================================
 # Target rules for target path_tracking/CMakeFiles/std_msgs_generate_messages_py.dir
 
 # All Build rule for target.
@@ -1036,6 +985,57 @@ sensor_msgs_generate_messages_cpp: path_tracking/CMakeFiles/sensor_msgs_generate
 path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/clean:
 	$(MAKE) -f path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/build.make path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/clean
 .PHONY : path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/clean
+
+#=============================================================================
+# Target rules for target path_tracking/CMakeFiles/PurePursuitControl.dir
+
+# All Build rule for target.
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_lisp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_eus.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_cpp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_py.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
+path_tracking/CMakeFiles/PurePursuitControl.dir/all: path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/all
+	$(MAKE) -f path_tracking/CMakeFiles/PurePursuitControl.dir/build.make path_tracking/CMakeFiles/PurePursuitControl.dir/depend
+	$(MAKE) -f path_tracking/CMakeFiles/PurePursuitControl.dir/build.make path_tracking/CMakeFiles/PurePursuitControl.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles --progress-num=1,2 "Built target PurePursuitControl"
+.PHONY : path_tracking/CMakeFiles/PurePursuitControl.dir/all
+
+# Build rule for subdir invocation for target.
+path_tracking/CMakeFiles/PurePursuitControl.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/PurePursuitControl.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles 0
+.PHONY : path_tracking/CMakeFiles/PurePursuitControl.dir/rule
+
+# Convenience name for target.
+PurePursuitControl: path_tracking/CMakeFiles/PurePursuitControl.dir/rule
+
+.PHONY : PurePursuitControl
+
+# clean rule for target.
+path_tracking/CMakeFiles/PurePursuitControl.dir/clean:
+	$(MAKE) -f path_tracking/CMakeFiles/PurePursuitControl.dir/build.make path_tracking/CMakeFiles/PurePursuitControl.dir/clean
+.PHONY : path_tracking/CMakeFiles/PurePursuitControl.dir/clean
 
 #=============================================================================
 # Target rules for target path_tracking/CMakeFiles/std_msgs_generate_messages_nodejs.dir

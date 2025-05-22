@@ -318,6 +318,21 @@ geometry_msgs_generate_messages_lisp/fast:
 .PHONY : geometry_msgs_generate_messages_lisp/fast
 
 # Convenience name for target.
+path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
+.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
+
+# Convenience name for target.
+roscpp_generate_messages_py: path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
+
+.PHONY : roscpp_generate_messages_py
+
+# fast build rule for target.
+roscpp_generate_messages_py/fast:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build
+.PHONY : roscpp_generate_messages_py/fast
+
+# Convenience name for target.
 path_tracking/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule:
 	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule
 .PHONY : path_tracking/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule
@@ -438,36 +453,6 @@ geometry_msgs_generate_messages_py/fast:
 .PHONY : geometry_msgs_generate_messages_py/fast
 
 # Convenience name for target.
-path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule:
-	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
-.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
-
-# Convenience name for target.
-roscpp_generate_messages_py: path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/rule
-
-.PHONY : roscpp_generate_messages_py
-
-# fast build rule for target.
-roscpp_generate_messages_py/fast:
-	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_py.dir/build
-.PHONY : roscpp_generate_messages_py/fast
-
-# Convenience name for target.
-path_tracking/CMakeFiles/PidControl.dir/rule:
-	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/PidControl.dir/rule
-.PHONY : path_tracking/CMakeFiles/PidControl.dir/rule
-
-# Convenience name for target.
-PidControl: path_tracking/CMakeFiles/PidControl.dir/rule
-
-.PHONY : PidControl
-
-# fast build rule for target.
-PidControl/fast:
-	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/PidControl.dir/build.make path_tracking/CMakeFiles/PidControl.dir/build
-.PHONY : PidControl/fast
-
-# Convenience name for target.
 path_tracking/CMakeFiles/std_msgs_generate_messages_py.dir/rule:
 	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/std_msgs_generate_messages_py.dir/rule
 .PHONY : path_tracking/CMakeFiles/std_msgs_generate_messages_py.dir/rule
@@ -496,6 +481,21 @@ sensor_msgs_generate_messages_cpp: path_tracking/CMakeFiles/sensor_msgs_generate
 sensor_msgs_generate_messages_cpp/fast:
 	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/build.make path_tracking/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/build
 .PHONY : sensor_msgs_generate_messages_cpp/fast
+
+# Convenience name for target.
+path_tracking/CMakeFiles/PurePursuitControl.dir/rule:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/PurePursuitControl.dir/rule
+.PHONY : path_tracking/CMakeFiles/PurePursuitControl.dir/rule
+
+# Convenience name for target.
+PurePursuitControl: path_tracking/CMakeFiles/PurePursuitControl.dir/rule
+
+.PHONY : PurePursuitControl
+
+# fast build rule for target.
+PurePursuitControl/fast:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/PurePursuitControl.dir/build.make path_tracking/CMakeFiles/PurePursuitControl.dir/build
+.PHONY : PurePursuitControl/fast
 
 # Convenience name for target.
 path_tracking/CMakeFiles/std_msgs_generate_messages_nodejs.dir/rule:
@@ -557,32 +557,32 @@ roscpp_generate_messages_eus/fast:
 	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build
 .PHONY : roscpp_generate_messages_eus/fast
 
-src/PID.o: src/PID.cpp.o
+src/PurePursuit.o: src/PurePursuit.cpp.o
 
-.PHONY : src/PID.o
+.PHONY : src/PurePursuit.o
 
 # target to build an object file
-src/PID.cpp.o:
-	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/PidControl.dir/build.make path_tracking/CMakeFiles/PidControl.dir/src/PID.cpp.o
-.PHONY : src/PID.cpp.o
+src/PurePursuit.cpp.o:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/PurePursuitControl.dir/build.make path_tracking/CMakeFiles/PurePursuitControl.dir/src/PurePursuit.cpp.o
+.PHONY : src/PurePursuit.cpp.o
 
-src/PID.i: src/PID.cpp.i
+src/PurePursuit.i: src/PurePursuit.cpp.i
 
-.PHONY : src/PID.i
+.PHONY : src/PurePursuit.i
 
 # target to preprocess a source file
-src/PID.cpp.i:
-	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/PidControl.dir/build.make path_tracking/CMakeFiles/PidControl.dir/src/PID.cpp.i
-.PHONY : src/PID.cpp.i
+src/PurePursuit.cpp.i:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/PurePursuitControl.dir/build.make path_tracking/CMakeFiles/PurePursuitControl.dir/src/PurePursuit.cpp.i
+.PHONY : src/PurePursuit.cpp.i
 
-src/PID.s: src/PID.cpp.s
+src/PurePursuit.s: src/PurePursuit.cpp.s
 
-.PHONY : src/PID.s
+.PHONY : src/PurePursuit.s
 
 # target to generate assembly for a file
-src/PID.cpp.s:
-	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/PidControl.dir/build.make path_tracking/CMakeFiles/PidControl.dir/src/PID.cpp.s
-.PHONY : src/PID.cpp.s
+src/PurePursuit.cpp.s:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/PurePursuitControl.dir/build.make path_tracking/CMakeFiles/PurePursuitControl.dir/src/PurePursuit.cpp.s
+.PHONY : src/PurePursuit.cpp.s
 
 # Help Target
 help:
@@ -604,6 +604,7 @@ help:
 	@echo "... roscpp_generate_messages_nodejs"
 	@echo "... std_msgs_generate_messages_eus"
 	@echo "... geometry_msgs_generate_messages_lisp"
+	@echo "... roscpp_generate_messages_py"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... rosgraph_msgs_generate_messages_nodejs"
 	@echo "... sensor_msgs_generate_messages_eus"
@@ -612,10 +613,9 @@ help:
 	@echo "... sensor_msgs_generate_messages_nodejs"
 	@echo "... sensor_msgs_generate_messages_py"
 	@echo "... geometry_msgs_generate_messages_py"
-	@echo "... roscpp_generate_messages_py"
-	@echo "... PidControl"
 	@echo "... std_msgs_generate_messages_py"
 	@echo "... sensor_msgs_generate_messages_cpp"
+	@echo "... PurePursuitControl"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
 	@echo "... rosgraph_msgs_generate_messages_cpp"
@@ -623,9 +623,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... roscpp_generate_messages_eus"
 	@echo "... rebuild_cache"
-	@echo "... src/PID.o"
-	@echo "... src/PID.i"
-	@echo "... src/PID.s"
+	@echo "... src/PurePursuit.o"
+	@echo "... src/PurePursuit.i"
+	@echo "... src/PurePursuit.s"
 .PHONY : help
 
 
