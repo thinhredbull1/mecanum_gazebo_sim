@@ -7,13 +7,22 @@ project(path_tracking)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+set(tinyspline_DIR "/usr/local/lib64/cmake/tinyspline")
+set(tinysplinecxx_DIR "/usr/local/lib64/cmake/tinysplinecxx")
+find_package(tinyspline REQUIRED)
+find_package(tinysplinecxx REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   sensor_msgs
   std_msgs
 )
-
+find_library(FUZZYLITE_LIBRARY NAMES fuzzylite libfuzzylite PATHS /usr/local/lib)
+if(NOT FUZZYLITE_LIBRARY)
+  message(FATAL_ERROR "FuzzyLite not found")
+endif()
+include_directories(/usr/local/include)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -118,7 +127,10 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 include
+${EIGEN3_INCLUDE_DIR}
   ${catkin_INCLUDE_DIRS}
+  /usr/local/include
+  ${tinyspline_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -218,6 +230,24 @@ add_executable(PurePursuitControl
 include/path_tracking/data_def.h
   src/PurePursuit.cpp
 )
+
 add_dependencies(PurePursuitControl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(PurePursuitControl
-  ${catkin_LIBRARIES})
+  ${catkin_LIBRARIES} tinysplinecxx::tinysplinecxx)
+add_executable(FPPControl
+include/path_tracking/data_fpp.h
+  src/FPP.cpp
+)
+add_dependencies(FPPControl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(FPPControl
+  ${catkin_LIBRARIES} ${FUZZYLITE_LIBRARY})
+add_executable(ModelPredictiveControl
+include/path_tracking/data_def_mpc.h
+  src/MPC.cpp
+)
+
+
+  add_dependencies(ModelPredictiveControl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+  target_link_libraries(ModelPredictiveControl
+    ${catkin_LIBRARIES}
+    ${EIGEN3_LIBRARIES})

@@ -10,7 +10,7 @@
 ros/ros.h
 -
 
-/home/thinh/nexus_4wd_mecanum_simulator/src/path_tracking/src/PurePursuit.cpp
+/home/thinh/nexus_4wd_mecanum_simulator/src/path_tracking/src/FPP.cpp
 std_msgs/String.h
 /home/thinh/nexus_4wd_mecanum_simulator/src/path_tracking/src/std_msgs/String.h
 boost/thread.hpp
@@ -26,8 +26,6 @@ ros/ros.h
 sensor_msgs/Imu.h
 -
 sstream
--
-tinysplinecxx.h
 -
 tf/transform_broadcaster.h
 -

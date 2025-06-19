@@ -96,6 +96,7 @@ PurePursuitControl_EXTERNAL_OBJECTS =
 /home/thinh/nexus_4wd_mecanum_simulator/devel/lib/path_tracking/PurePursuitControl: /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0
 /home/thinh/nexus_4wd_mecanum_simulator/devel/lib/path_tracking/PurePursuitControl: /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
 /home/thinh/nexus_4wd_mecanum_simulator/devel/lib/path_tracking/PurePursuitControl: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
+/home/thinh/nexus_4wd_mecanum_simulator/devel/lib/path_tracking/PurePursuitControl: /usr/local/lib64/libtinysplinecxx.a
 /home/thinh/nexus_4wd_mecanum_simulator/devel/lib/path_tracking/PurePursuitControl: path_tracking/CMakeFiles/PurePursuitControl.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/thinh/nexus_4wd_mecanum_simulator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/thinh/nexus_4wd_mecanum_simulator/devel/lib/path_tracking/PurePursuitControl"
 	cd /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/PurePursuitControl.dir/link.txt --verbose=$(VERBOSE)

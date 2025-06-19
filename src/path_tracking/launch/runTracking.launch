@@ -3,9 +3,9 @@
     <param name="/use_sim_time" value="true"/>  
     <node name="PurePursuitControl" pkg="path_tracking" type="PurePursuitControl" output="screen">
      
-       <param name="flag" type="int" value="2" />
+       <param name="flag" type="int" value="3" />
 
-       <!--flag =1 the desired trajectory is circle，2 cosine-->   
+       <!--flag =1 the desired trajectory is circle，2 cosine 3 = spline-->   
        <param name="Slip_com" type="int" value="0" />
       
        <!--the slip compensation is useless for current progrem,should be 0 for now-->

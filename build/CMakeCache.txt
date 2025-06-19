@@ -402,6 +402,9 @@ FLANN_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libflann_cpp.so
 FLANN_LIBRARY_DEBUG:FILEPATH=FLANN_LIBRARY_DEBUG-NOTFOUND
 
 //Path to a library.
+FUZZYLITE_LIBRARY:FILEPATH=/usr/local/lib/libfuzzylite.so
+
+//Path to a library.
 GMOCK_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libgmock.a
 
 //Path to a library.
@@ -1551,6 +1554,12 @@ tf2_sensor_msgs_DIR:PATH=/opt/ros/noetic/share/tf2_sensor_msgs/cmake
 //The directory containing a CMake configuration file for tf.
 tf_DIR:PATH=/opt/ros/noetic/share/tf/cmake
 
+//The directory containing a CMake configuration file for tinyspline.
+tinyspline_DIR:PATH=tinyspline_DIR-NOTFOUND
+
+//The directory containing a CMake configuration file for tinysplinecxx.
+tinysplinecxx_DIR:PATH=tinysplinecxx_DIR-NOTFOUND
+
 //The directory containing a CMake configuration file for topic_tools.
 topic_tools_DIR:PATH=/opt/ros/noetic/share/topic_tools/cmake
 
@@ -1709,6 +1718,8 @@ CMAKE_C_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 CMAKE_C_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_DLLTOOL
 CMAKE_DLLTOOL-ADVANCED:INTERNAL=1
+//Path to cache edit program executable.
+CMAKE_EDIT_COMMAND:INTERNAL=/usr/bin/ccmake
 //Executable file format
 CMAKE_EXECUTABLE_FORMAT:INTERNAL=ELF
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS
@@ -1962,6 +1973,10 @@ FIND_PACKAGE_MESSAGE_DETAILS_ccd:INTERNAL=[/usr/include][/usr/lib/x86_64-linux-g
 FIND_PACKAGE_MESSAGE_DETAILS_fcl:INTERNAL=[/usr/include][/usr/lib/x86_64-linux-gnu/libfcl.so][v0.5.0(0.3.2)]
 //Details about finding libusb-1.0
 FIND_PACKAGE_MESSAGE_DETAILS_libusb-1.0:INTERNAL=[/usr/include][v()]
+//Details about finding tinyspline
+FIND_PACKAGE_MESSAGE_DETAILS_tinyspline:INTERNAL=[/usr/local/include][/usr/local/lib64][/usr/local/bin][tinyspline::tinyspline][v0.7.0()]
+//Details about finding tinysplinecxx
+FIND_PACKAGE_MESSAGE_DETAILS_tinysplinecxx:INTERNAL=[/usr/local/include][/usr/local/lib64][/usr/local/bin][tinysplinecxx::tinysplinecxx][v0.7.0()]
 GMOCK_FROM_SOURCE_FOUND:INTERNAL=TRUE
 GMOCK_FROM_SOURCE_INCLUDE_DIRS:INTERNAL=/usr/include
 GMOCK_FROM_SOURCE_LIBRARIES:INTERNAL=gmock

@@ -8,7 +8,6 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sstream>
-#include <tinysplinecxx.h>
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/Path.h> // Thêm header cho Path
 #include <algorithm>
@@ -214,52 +213,6 @@ void SubscribeAndPublish::generateDesiredPath()
     }
   }
 
-  else if (flag == 3)
-  {
-    std::vector<double> x_control = {0.12, 1.82, 1.82, -0.05, -1.23, -3.42, -4.75, -4.00, -2.23, -1.95, -3.15, -4.80, -2.92};
-    std::vector<double> y_control = {-0.05, 1.32, 2.98, 4.35, 3.08, 3.60, 1.90, 0.65, -0.17, -1.70, -2.17, -2.92, -3.70};
-    tinyspline::BSpline spline(x_control.size(), 2, 3); // Spline 2D, bậc 3
-    std::vector<tinyspline::real> ctrlp;
-    for (size_t i = 0; i < x_control.size(); ++i)
-    {
-      ctrlp.push_back(x_control[i]);
-      ctrlp.push_back(y_control[i]);
-    }
-    spline.setControlPoints(ctrlp);
-
-   
-    int num_points = 500;
-    for (int i = 0; i <= num_points; ++i)
-    {
-      double t = static_cast<double>(i) / num_points;
-      std::vector<tinyspline::real> point = spline.eval(t).result();
-      double x_c_rel = point[0];
-      double y_c_rel = point[1];
-
-      geometry_msgs::PoseStamped pose;
-      pose.header.stamp = ros::Time::now();
-      pose.header.frame_id = frame_id;
-      pose.pose.position.x = x_c_rel;
-      pose.pose.position.y = y_c_rel;
-      pose.pose.position.z = 0.0;
-
-      // Tính hướng (gần đúng bằng đạo hàm)
-      std::vector<tinyspline::real> deriv = spline.derive().eval(t).result();
-      double dx = deriv[0];
-      double dy = deriv[1];
-      double theta = std::atan2(dy, dx) + M_PI / 2;
-
-      tf::Quaternion q;
-      q.setRPY(0, 0, theta);
-      pose.pose.orientation.x = q.x();
-      pose.pose.orientation.y = q.y();
-      pose.pose.orientation.z = q.z();
-      pose.pose.orientation.w = q.w();
-
-      desired_path_follow.poses.push_back(pose);
-    }
-  }
-
   desired_path_follow.header.stamp = ros::Time::now();
   // desired_path_.header.frame_id = frame_id;
   desired_path_follow.header.frame_id = frame_id;
@@ -311,8 +264,7 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       n_.getParam("/PurePursuitControl/ErrorGain", ErrorGain);
       n_.getParam("/PurePursuitControl/accMax", accMax);
       n_.getParam("/PurePursuitControl/init_LP", init_LP);
-      n_.getParam("/PurePursuitControl/r_path", r_path);
-      ROS_INFO("SMC:%d FRAME_ID:%s ctr_rate:%d,LookaHeadDis:%f r_path:%f", SMC_on, frame_id.c_str(), ctrl_rate, LookaHeadDis, r_path);
+      ROS_INFO("SMC:%d FRAME_ID:%s ctr_rate:%d,LookaHeadDis:%f", SMC_on, frame_id.c_str(), ctrl_rate, LookaHeadDis);
       Robo_State_init.X_a = (double)odom_input.pose.pose.position.x; // Đơn vị là m
       Robo_State_init.Y_a = (double)odom_input.pose.pose.position.y;
       k1 = 1.0 / (2 * accMax);
@@ -459,7 +411,6 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
 
       if (index_path >= desired_path_follow.poses.size() - 1)
       {
-        // old_nearest_point_index=1;
         if (error_total <= xyTolerance)
         {
           Robo_State_cur.V_c = 0;
@@ -488,7 +439,7 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
     Robo_State_cur.W_a = 0;
   }
   pub_.publish(output);
-  desired_path_pub_.publish(desired_path_follow);
+  desired_path_pub_.publish(desired_path_);
   loop_rate.sleep();
 }
 
@@ -554,6 +505,7 @@ double getCurvature()
   else if (curve < -1.0)
     curve = -1.0;
   return curve;
+
 }
 double calDistance(int ind)
 {
@@ -583,7 +535,8 @@ double AdjustLP()
   double curv = getCurvature();
   // double curv2=std::min(curv, 1.0);
   double LP = k1 * (Robo_State_cur.V_a * Robo_State_cur.V_a) + CurveGain * abs(curv) + ErrorGain * err_y + init_LP;
-  // ROS_INFO("LP:%f curve:%f, error_y:%f", LP, curv, err_y);
+  ROS_INFO("LP:%f curve:%f, error_y:%f", LP, curv, err_y);
+  
 
   return LP;
 }
@@ -594,10 +547,8 @@ int get_desired_path_pose()
     ROS_WARN("desired_path_ is empty!");
     return 0;
   }
-
   double min_dist = std::numeric_limits<double>::max();
   size_t closest_idx = 0;
-  // ROS_INFO("old:%d",old_nearest_point_index);
   if (old_nearest_point_index == -1)
   {
     for (size_t i = 0; i < desired_path_follow.poses.size(); ++i)
@@ -610,7 +561,6 @@ int get_desired_path_pose()
         old_nearest_point_index = i;
       }
     }
-    // ROS_INFO("now:%d",old_nearest_point_index);
   }
   else
   {
@@ -638,7 +588,6 @@ int get_desired_path_pose()
   else if (SMC_on == 2)
     Lf = AdjustLP();
   //
-
   int target_idx = (calLookAheadPointInd(closest_idx, Lf)) % desired_path_follow.poses.size();
   Robo_State_des.X_c = desired_path_follow.poses[target_idx].pose.position.x;
   Robo_State_des.Y_c = desired_path_follow.poses[target_idx].pose.position.y;
@@ -651,7 +600,6 @@ int get_desired_path_pose()
   double roll, pitch, yaw;
   m.getRPY(roll, pitch, yaw);
   Robo_State_des.Theta_c = yaw;
-  ROS_INFO("old:%d now:%d", old_nearest_point_index, closest_idx);
   return target_idx;
 }
 void get_desired_pose()

@@ -11,10 +11,10 @@
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/Path.h> // Thêm header cho Path
 #include <algorithm>
+#include <Eigen/Dense>
 
 // Include ACL message types (https://bitbucket.org/brettlopez/acl_msgs.git)
-#include <acl_msgs/ViconState.h>
-#include <learning_com/Data_def.h>
+#include <path_tracking/data_def_mpc.h>
 
 #include <fstream>
 #include <iostream>
@@ -22,18 +22,25 @@
 
 #include <sys/time.h>
 #include <time.h>
-
-
-std::fstream readfile(
-    "/home/thinh/project_test/SkidSteeringSMC/simulation/src/SMCinROS/src/learning_com/src/1.txt");
 std::string line;
 std::ofstream in;
-
-
+nav_msgs::Path desired_path_follow;
+ros::Publisher pose_pub;
 int flag;
 int SMC_on;
 int Slip_com;
+double accMax;
+double k1;
+double gain_speed_target;
+double gain_curve;
+double LookaHeadDis;
+double LookaHeadGain;
+double xyTolerance;
 
+double CurveGain, ErrorGain;
+float error_total;
+double init_LP;
+std::string frame_id;
 void initdata()
 {
   counter = 0;
@@ -61,9 +68,9 @@ void initdata()
 
   time_interval = 0;
   time_file = 0;
-  r_path=1.0;
+  r_path = 1.0;
   is_vision_ini = false;
-
+  old_nearest_point_index = -1;
   memset(X_cStor, 0, sizeof(X_cStor));
   memset(Y_cStor, 0, sizeof(Y_cStor));
   memset(Theta_cStor, 0, sizeof(Theta_cStor));
@@ -81,38 +88,27 @@ void initdata()
   memset(Fil_Slip_C_Sort, 0, sizeof(Fil_Slip_C_Sort));
 }
 
-
 class SubscribeAndPublish
 {
 public:
   SubscribeAndPublish()
   {
- 
 
     pub_ = n_.advertise<geometry_msgs::Twist>("/cmd_vel", 100);
-
-
-   
-    sub_imu =
-        n_.subscribe("/imu/data", 100, &SubscribeAndPublish::callback2, this);
     sub_odom =
         n_.subscribe("/odom_reset", 100, &SubscribeAndPublish::callback3, this);
     path_pub_ = n_.advertise<nav_msgs::Path>("robot_path", 1);
-    path_.header.frame_id = "odom_reset";
+
+    pose_pub = n_.advertise<geometry_msgs::PoseStamped>("desired_pose", 1);
     desired_path_pub_ = n_.advertise<nav_msgs::Path>("desired_path", 1);
-    desired_path_.header.frame_id = "odom_reset";
+
     is_desired_path_published = false;
     ROS_INFO("path_pub_ initialized with topic: /robot_path");
     ROS_INFO("desired_path_pub_ initialized with topic: /desired_path");
   }
 
-  void callback(const acl_msgs::ViconState &Vi_input);
-
-  void callback2(const sensor_msgs::Imu &imu_input);
-
   void callback3(const nav_msgs::Odometry &odom_input);
   void generateDesiredPath();
-  void get_desired_pose_circle();
   int node_ok() { return n_.ok(); }
 
 private:
@@ -122,14 +118,14 @@ private:
   ros::Subscriber sub_odom;
   ros::Subscriber sub_imu;
   nav_msgs::Path path_;
+
   ros::Publisher path_pub_;
   ros::Publisher desired_path_pub_;
   nav_msgs::Path desired_path_;
-  nav_msgs::Path desired_path_follow;
+
   bool is_desired_path_published;
 
 }; // End of class SubscribeAndPublish
-
 
 int main(int argc, char **argv)
 {
@@ -138,182 +134,89 @@ int main(int argc, char **argv)
 
   // Create an object of class SubscribeAndPublish that will take care of
   // everything
-  initdata(); 
+  initdata();
 
   ROS_INFO("rosros1");
   SubscribeAndPublish SAPObject;
   counter = 0;
 
-  ros::MultiThreadedSpinner s(3); 
+  ros::MultiThreadedSpinner s(3);
   ros::spin(s);
 
   return 0;
 }
-void SubscribeAndPublish::get_desired_pose_circle()
-{
-  if (desired_path_.poses.empty())
-  {
-    ROS_WARN("desired_path_ is empty!");
-    return;
-  }
 
-  // Tìm điểm gần nhất trên desired_path_
-  double min_dist = std::numeric_limits<double>::max();
-  size_t closest_idx = 0;
-  double cur_x = Robo_State_cur.X_a + Robo_State_init.X_a;
-  double cur_y = Robo_State_cur.Y_a + Robo_State_init.Y_a;
-
-  for (size_t i = 0; i < desired_path_.poses.size(); ++i)
-  {
-    double dx = desired_path_.poses[i].pose.position.x - Robo_State_cur.X_a;
-    double dy = desired_path_.poses[i].pose.position.y - Robo_State_cur.Y_a;
-    double dist = sqrt(dx * dx + dy * dy);
-    if (dist < min_dist)
-    {
-      min_dist = dist;
-      closest_idx = i;
-    }
-  }
-
-  // Lấy điểm tiếp theo (hoặc điểm gần nhất + 1 nếu muốn robot bám tuần tự)
-  size_t target_idx = (closest_idx + 1) % desired_path_.poses.size(); // Điểm tiếp theo trên vòng tròn
-  Robo_State_des.X_c = desired_path_.poses[target_idx].pose.position.x;
-  Robo_State_des.Y_c = desired_path_.poses[target_idx].pose.position.y;
-
-  tf::Quaternion q(
-      desired_path_.poses[target_idx].pose.orientation.x,
-      desired_path_.poses[target_idx].pose.orientation.y,
-      desired_path_.poses[target_idx].pose.orientation.z,
-      desired_path_.poses[target_idx].pose.orientation.w);
-  tf::Matrix3x3 m(q);
-  double roll, pitch, yaw;
-  m.getRPY(roll, pitch, yaw);
-  Robo_State_des.Theta_c = yaw;
-  tf::Quaternion q2(
-      desired_path_.poses[closest_idx].pose.orientation.x,
-      desired_path_.poses[closest_idx].pose.orientation.y,
-      desired_path_.poses[closest_idx].pose.orientation.z,
-      desired_path_.poses[closest_idx].pose.orientation.w);
-  tf::Matrix3x3 m2(q2);
-
-  m2.getRPY(roll, pitch, yaw);
-
-  // Tính vận tốc mong muốn dựa trên khoảng cách đến điểm tiếp theo
-  double dx = desired_path_.poses[target_idx].pose.orientation.x - desired_path_.poses[closest_idx].pose.orientation.x;
-  double dy = desired_path_.poses[target_idx].pose.orientation.y - desired_path_.poses[closest_idx].pose.orientation.y;
-  double dtheta = Robo_State_des.Theta_c - yaw;
-  if (dtheta > M_PI)
-    dtheta -= 2 * M_PI;
-  else if (dtheta < -M_PI)
-    dtheta += 2 * M_PI;
-
-  double dt = 1.0 / ctrl_rate; // Giả sử ctrl_rate là tần số điều khiển (ví dụ: 30 Hz)
-  Robo_State_des.V_c = sqrt(dx * dx + dy * dy) / dt;
-  Robo_State_des.W_c = dtheta / dt;
-
-  // Giới hạn vận tốc
-  if (Robo_State_des.V_c > 0.2)
-    Robo_State_des.V_c = 0.2;
-  else if (Robo_State_des.V_c < -0.2)
-    Robo_State_des.V_c = -0.2;
-  if (Robo_State_des.W_c > 0.2)
-    Robo_State_des.W_c = 0.2;
-  else if (Robo_State_des.W_c < -0.2)
-    Robo_State_des.W_c = -0.2;
-
-  traj_counter++;
-}
-
-void run_SMC()
-
-{
-  float c = 0.6;
-  float n1 = 0.8;
-  float n2 = 0.1;
-  float layer_1 = 0.05;
-  float layer_2 = 0.01;
-  float xe=Robo_State_cur.X_e;
-  float ye=Robo_State_cur.Y_e;
-  SMC_S1 = c * Robo_State_cur.Theta_e + atan(Robo_State_cur.Y_e);
-  SMC_S2 = Robo_State_cur.X_e;
-  float temp1 = (1 / (1 + Robo_State_cur.Y_e * Robo_State_cur.Y_e)) * Robo_State_des.V_c * sin(Robo_State_cur.Theta_e) + c * Robo_State_des.W_c;
-  float tmp = n1 * Sgn(SMC_S1, 0.02) + temp1;
-  float tmp2 = n2 * Sgn(SMC_S2, 0.01) + Robo_State_des.V_c * cos(Robo_State_cur.Theta_e);
-  double b = -(c + xe / (1 + ye * ye));
-  double d = ye;
-  ///https://discovery.ucl.ac.uk/id/eprint/1551571/1/Spurgeon_authorFinalVersion.pdf
-  // Tính định thức
-  double det = -(c + xe / (1 + ye * ye));
-  // [d/det -b/det
-  //   1/det   0        ]
-  // Kiểm tra định thức khác 0
-  if (abs(det) < 1e-10)
-  {
-    ROS_INFO("MATRIX CANNOT INVERT");
-    return;
-  }
-  float u1=(d/det)*tmp-(b/det)*tmp2;
-  float u2=(-1/det)*tmp;
-  Robo_State_cur.V_c=fabs(u1);
-  Robo_State_cur.W_c=u2;
-  ROS_INFO("DET:%f tmp:%f",det,tmp2);
-  ROS_INFO("error_x :%f error_y:%f robot_state_theta_e:%f SMC_S2:%f", Robo_State_cur.X_e, Robo_State_cur.Y_e, Robo_State_cur.Theta_e, SMC_S1);
-}
-void SubscribeAndPublish::callback2(const sensor_msgs::Imu &imu_input)
-{
-  // for IMU data
-  ros::Rate loop_rate(ctrl_rate);
-  /*
-  ROS_INFO("imu test is: %lf ", imu_test);
-  imu_test = (double)imu_input.header.stamp.Time::nsec / 1000000;
-  */
-  loop_rate.sleep();
-}
 void SubscribeAndPublish::generateDesiredPath()
 {
   desired_path_.poses.clear();
-  
-  double r = r_path; // Bán kính 1.5m
-  int num_points = 360;
-  double base_x = Robo_State_init.X_a;
-  double base_y = Robo_State_init.Y_a;
-  double base_theta = Robo_State_init.Theta_a;
-  double delta_theta = 2 * M_PI / num_points;
-  for (int i = 0; i < num_points; ++i)
+  if (flag == 1)
   {
-    double theta = 2 * pi * i / num_points; // Góc tăng đều
-    double angle = i * delta_theta;
-    double x_c_rel = r * sin(theta);
-    double y_c_rel = -r * cos(theta) + r;
+    double r = r_path; // Bán kính 1.5m
+    int num_points = 360;
+    double base_x = Robo_State_init.X_a;
+    double base_y = Robo_State_init.Y_a;
+    double base_theta = Robo_State_init.Theta_a;
+    double delta_theta = 2 * M_PI / num_points;
+    for (int i = 0; i < num_points; ++i)
+    {
+      double theta = 2 * pi * i / num_points; // Góc tăng đều
+      double angle = i * delta_theta;
+      double x_c_rel = r * sin(theta);
+      double y_c_rel = -r * cos(theta) + r;
 
-    geometry_msgs::PoseStamped pose;
-    pose.header.stamp = ros::Time::now();
-    pose.header.frame_id = "odom_reset";
-    pose.pose.position.x = cos(base_theta) * x_c_rel - sin(base_theta) * y_c_rel;
-    pose.pose.position.y = sin(base_theta) * x_c_rel + cos(base_theta) * y_c_rel;
-    pose.pose.position.z = 0.0;
+      geometry_msgs::PoseStamped pose;
+      pose.header.stamp = ros::Time::now();
+      pose.header.frame_id = frame_id;
+      // pose.pose.position.x = cos(base_theta) * x_c_rel - sin(base_theta) * y_c_rel;
+      // pose.pose.position.y = sin(base_theta) * x_c_rel + cos(base_theta) * y_c_rel;
+      pose.pose.position.x = x_c_rel;
+      pose.pose.position.y = y_c_rel;
+      pose.pose.position.z = 0.0;
 
-    tf::Quaternion q;
-    q.setRPY(0, 0, base_theta + atan2(y_c_rel - 0.5, x_c_rel) + pi / 2);
-    pose.pose.orientation.x = q.x();
-    pose.pose.orientation.y = q.y();
-    pose.pose.orientation.z = q.z();
-    pose.pose.orientation.w = q.w();
+      tf::Quaternion q;
+      q.setRPY(0, 0, base_theta + atan2(y_c_rel - 0.5, x_c_rel) + pi / 2);
+      pose.pose.orientation.x = q.x();
+      pose.pose.orientation.y = q.y();
+      pose.pose.orientation.z = q.z();
+      pose.pose.orientation.w = q.w();
 
-    desired_path_follow.poses.push_back(pose);
+      desired_path_follow.poses.push_back(pose);
+    }
+  }
+  else if (flag == 2)
+  {
+    double r = r_path;
+    int num_points = 360;
+    for (int i = 0; i < num_points; ++i)
+    {
 
-    pose.pose.position.x = x_c_rel;
-    pose.pose.position.y = y_c_rel;
-    pose.pose.position.z = 0.0;
-    q.setRPY(0, 0, atan2(y_c_rel - 0.5, x_c_rel) + pi / 2);
-    pose.pose.orientation.x = q.x();
-    pose.pose.orientation.y = q.y();
-    pose.pose.orientation.z = q.z();
-    pose.pose.orientation.w = q.w();
-    desired_path_.poses.push_back(pose);
+      double x_c_rel = 2 * pi * i / (ctrl_rate * 120);
+      ;
+      double y_c_rel = r * cos(x_c_rel * 3.5) - r;
+
+      geometry_msgs::PoseStamped pose;
+      pose.header.stamp = ros::Time::now();
+      pose.header.frame_id = frame_id;
+      // pose.pose.position.x = cos(base_theta) * x_c_rel - sin(base_theta) * y_c_rel;
+      // pose.pose.position.y = sin(base_theta) * x_c_rel + cos(base_theta) * y_c_rel;
+      pose.pose.position.x = x_c_rel;
+      pose.pose.position.y = y_c_rel;
+      pose.pose.position.z = 0.0;
+
+      tf::Quaternion q;
+      q.setRPY(0, 0, atan2(y_c_rel - 0.5, x_c_rel) + pi / 2);
+      pose.pose.orientation.x = q.x();
+      pose.pose.orientation.y = q.y();
+      pose.pose.orientation.z = q.z();
+      pose.pose.orientation.w = q.w();
+
+      desired_path_follow.poses.push_back(pose);
+    }
   }
 
   desired_path_follow.header.stamp = ros::Time::now();
+  // desired_path_.header.frame_id = frame_id;
+  desired_path_follow.header.frame_id = frame_id;
   ROS_INFO("Generated desired_path_ with %lu poses", desired_path_follow.poses.size());
   desired_path_pub_.publish(desired_path_follow);
   is_desired_path_published = true;
@@ -324,10 +227,6 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
   //  for wheel odometry data
   ros::Rate loop_rate(ctrl_rate);
   geometry_msgs::Twist output;
-
-  n_.getParam("/SAPcontrolNew/flag", flag);         // Lấy tham số flag
-  n_.getParam("/SAPcontrolNew/SMC_on", SMC_on);     // Lấy tham số SMC_on
-  n_.getParam("/SAPcontrolNew/Slip_com", Slip_com); // Lấy tham số Slip_com
 
   if (counter == 0)
   {
@@ -351,10 +250,25 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
   if (!odom_input.pose.pose.position.x == 0 && !odom_input.twist.twist.linear.x == 0)
   { // Kiểm tra dữ liệu hợp lệ
     if (is_vision_ini == false)
-    {                                                                // Khởi tạo lần đầu
+    {                                                        // Khởi tạo lần đầu
+      n_.getParam("/PurePursuitControl/flag", flag);         // Lấy tham số flag
+      n_.getParam("/PurePursuitControl/SMC_on", SMC_on);     // Lấy tham số SMC_on
+      n_.getParam("/PurePursuitControl/Slip_com", Slip_com); // Lấy tham số Slip_com
+      n_.getParam("/PurePursuitControl/frame_id", frame_id);
+      n_.getParam("/PurePursuitControl/ctrl_rate", ctrl_rate);
+      n_.getParam("/PurePursuitControl/gain_speed_target", gain_speed_target);
+      n_.getParam("/PurePursuitControl/gain_curve", gain_curve);
+      n_.getParam("/PurePursuitControl/LookaHeadDis", LookaHeadDis);
+      n_.getParam("/PurePursuitControl/LookaHeadGain", LookaHeadGain);
+      n_.getParam("/PurePursuitControl/xyTolerance", xyTolerance);
+      n_.getParam("/PurePursuitControl/CurveGain", CurveGain);
+      n_.getParam("/PurePursuitControl/ErrorGain", ErrorGain);
+      n_.getParam("/PurePursuitControl/accMax", accMax);
+      n_.getParam("/PurePursuitControl/init_LP", init_LP);
+      ROS_INFO("SMC:%d FRAME_ID:%s ctr_rate:%d,LookaHeadDis:%f", SMC_on, frame_id.c_str(), ctrl_rate, LookaHeadDis);
       Robo_State_init.X_a = (double)odom_input.pose.pose.position.x; // Đơn vị là m
       Robo_State_init.Y_a = (double)odom_input.pose.pose.position.y;
-
+      k1 = 1.0 / (2 * accMax);
       // Lấy góc yaw từ quaternion
       qx = (double)odom_input.pose.pose.orientation.x;
       qy = (double)odom_input.pose.pose.orientation.y;
@@ -404,8 +318,8 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       is_vision_ini = true; // Đánh dấu đã khởi tạo
       Robo_State_cur.V_c = 0;
       Robo_State_cur.W_c = 0;
+      desired_path_.poses.clear();
       generateDesiredPath();
-      // desired_path_.poses.clear();
     }
     else
     {                                                                                     // Cập nhật trạng thái hiện tại
@@ -420,55 +334,16 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       tf::Quaternion qyaw2(qx, qy, qz, qw);
       Robo_State_cur.Theta_a = (tf::getYaw(qyaw2) - Robo_State_init.Theta_a);
 
-      // if (flag == 1)
-      // {
-      //   if (traj_counter > 300)
-      //   {
-      //     if (Robo_State_cur.Theta_a < 0)
-      //     {
-      //       Robo_State_cur.Theta_a = Robo_State_cur.Theta_a + 2 * pi;
-      //     }
-      //   }
-      // }
-      // else if (flag == 2)
-      // {
-      //   if (Robo_State_cur.Theta_a > pi)
-      //   {
-      //     Robo_State_cur.Theta_a = Robo_State_cur.Theta_a - 2 * pi;
-      //   }
-      //   else if (Robo_State_cur.Theta_a < -pi)
-      //   {
-      //     Robo_State_cur.Theta_a = Robo_State_cur.Theta_a + 2 * pi;
-      //   }
-      // }
-
-      Robo_State_cur.dX_a = (double)odom_input.twist.twist.linear.x * cos(Robo_State_cur.Theta_a); // Đơn vị là m/s
-      Robo_State_cur.dY_a = (double)odom_input.twist.twist.linear.x * sin(Robo_State_cur.Theta_a);
+      Robo_State_cur.dX_a = (double)odom_input.twist.twist.linear.x; // Đơn vị là m/s
+      Robo_State_cur.dY_a = (double)odom_input.twist.twist.linear.y;
 
       Robo_State_cur.V_a = Robo_State_cur.dX_a;
       Robo_State_cur.acc_theta = ((double)odom_input.twist.twist.angular.z - Robo_State_cur.W_a) / (1.0 / 15.0);
       Robo_State_cur.W_a = (double)odom_input.twist.twist.angular.z; // Vận tốc góc yaw
 
-      // Giới hạn vận tốc
-      // if (Robo_State_cur.V_a >= 0.2)
-      // {
-      //   Robo_State_cur.V_a = 0.2;
-      // }
-      // else if (Robo_State_cur.V_a <= -0.2)
-      // {
-      //   Robo_State_cur.V_a = -0.2;
-      // }
-      // if (Robo_State_cur.W_a >= 0.2)
-      // {
-      //   Robo_State_cur.W_a = 0.2;
-      // }
-      // else if (Robo_State_cur.W_a <= -0.2)
-      // {
-      //   Robo_State_cur.W_a = -0.2;
-      // }
       geometry_msgs::PoseStamped pose;
       pose.header.stamp = ros::Time::now();
-      pose.header.frame_id = "odom_reset"; // Frame cố định, phù hợp với path_
+      pose.header.frame_id = frame_id; // Frame cố định, phù hợp với path_
       pose.pose.position.x = Robo_State_cur.X_a + Robo_State_init.X_a;
       ; // Vị trí tuyệt đối
       pose.pose.position.y = Robo_State_cur.Y_a + Robo_State_init.Y_a;
@@ -484,12 +359,17 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
 
       path_.poses.push_back(pose);           // Thêm pose vào quỹ đạo
       path_.header.stamp = ros::Time::now(); // Cập nhật timestamp cho path
-
+      path_.header.frame_id = frame_id;
       // Publish quỹ đạo
+
       path_pub_.publish(path_);
-      get_desired_pose();
+      // get_desired_pose();
+      int index_path;
+
+      index_path = get_desired_path_pose();
+      publish_pose();
       pose.header.stamp = ros::Time::now();
-      pose.header.frame_id = "odom";
+      pose.header.frame_id = frame_id;
       pose.pose.position.x = Robo_State_des.X_c + Robo_State_init.X_a;
       pose.pose.position.y = Robo_State_des.Y_c + Robo_State_init.Y_a;
       pose.pose.position.z = 0.0;
@@ -501,53 +381,52 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
       pose.pose.orientation.z = q.z();
       pose.pose.orientation.w = q.w();
 
-      // desired_path_.poses.push_back(pose);
-      // desired_path_pub_.publish(desired_path_);
-      // get_desired_pose_circle();
       get_err_pose(); // Tính sai số giữa mong muốn và thực tế
-      get_slip();     // Tính tỷ lệ trượt và tốc độ thay đổi của nó
+                      // ROS_INFO("curvature:%f", getCurvature());
 
-      if (SMC_on == 2)
+      // get_SMC_S();
+
+      // run_A_SMC();
+      // ROS_INFO("OKOK2");
+
+      error_total = sqrt(Robo_State_cur.X_e * Robo_State_cur.X_e + Robo_State_cur.Y_e * Robo_State_cur.Y_e);
+      // if(error_x<0.005 && Robo_State_cur.Theta_e<=0.005 )
+      // {
+      //   Robo_State_cur.Theta_e=0;
+      //   ROS_INFO("DONE");
+      // }
+      // float k3 = 1.0;
+      // float k2 = 1.0;
+      // // float delta_target=Robo_State_cur.Theta_e+Robo_State_cur.Theta_a-Robo_State_des.Theta_c;
+      // float delta_target = Robo_State_cur.Theta_e + Robo_State_cur.Theta_a;
+      // float ts = (Robo_State_cur.Theta_e + k3 * delta_target) / Robo_State_cur.Theta_e;
+      // float error_theta=k2*Robo_State_cur.Theta_e+1*sin(Robo_State_cur.Theta_e)*cos(Robo_State_cur.Theta_e)*ts;
+      float curve = (2 * sin(Robo_State_cur.Theta_e)) / (error_total); // curve = 1/R --> w=v*curve
+
+      // if(error_x<0.01)index_path+=5;
+
+      float error_theta = Robo_State_cur.V_c;
+
+      Robo_State_cur.V_c = gain_speed_target * error_total * cos(Robo_State_cur.Theta_e);
+      Robo_State_cur.W_c = gain_curve * curve * Robo_State_cur.V_c;
+
+      if (index_path >= desired_path_follow.poses.size() - 1)
       {
-        set_paras();
-        // get_SMC_S();
-        get_ASMC_D();
-        // run_A_SMC();
-        // ROS_INFO("OKOK2");
-        run_ASMCmatLab();
-        if (Slip_com != 0)
+        if (error_total <= xyTolerance)
         {
-          slip_compen(); // Bù trượt
+          Robo_State_cur.V_c = 0;
+          Robo_State_cur.W_c = 0;
+          ROS_INFO("DONE LOOP");
         }
-        output.angular.z = Robo_State_cur.W_c;
-        output.linear.x = Robo_State_cur.V_c;
       }
-      else if (SMC_on == 1)
+      else
       {
-        set_paras();
-        get_SMC_S();
-        // ROS_INFO("OKOK");
-        // run_SMC();
-        if (Slip_com != 0)
-        {
-          slip_compen(); // Bù trượt
-        }
-        output.angular.z = Robo_State_cur.W_c;
-        output.linear.x = Robo_State_cur.V_c;
+        // ROS_INFO("error_total :%f err_x:%f error_y:%f robot_state_theta_e:%f index:%d", error_total, Robo_State_cur.X_e, Robo_State_cur.Y_e, Robo_State_cur.Theta_e, index_path);
       }
-      else if (SMC_on == 0)
-      {
-        // ROS_INFO("OKOK3");
-        // Chuyển động vòng hở
-        Robo_State_cur.W_c = Robo_State_des.W_c;
-        Robo_State_cur.V_c = Robo_State_des.V_c;
-        if (Slip_com != 0)
-        {
-          slip_compen(); // Bù trượt
-        }
-        output.angular.z = Robo_State_cur.W_c;
-        output.linear.x = Robo_State_cur.V_c;
-      }
+      output.angular.z = Robo_State_cur.W_c;
+      output.linear.x = Robo_State_cur.V_c;
+
+      // ROS_INFO("error_x :%f error_y:%f robot_state_theta_e:%f index:%d", Robo_State_cur.X_e, Robo_State_cur.Y_e, Robo_State_cur.Theta_e,index_path);
     }
   }
   else
@@ -565,31 +444,185 @@ void SubscribeAndPublish::callback3(const nav_msgs::Odometry &odom_input)
   loop_rate.sleep();
 }
 
+void publish_pose()
+{
+  geometry_msgs::PoseStamped pose_msg;
+  pose_msg.header.stamp = ros::Time::now();
+  pose_msg.header.frame_id = frame_id; // Frame cố định, có thể đổi thành "odom"
 
+  // Gán vị trí
+  pose_msg.pose.position.x = Robo_State_des.X_c;
+  pose_msg.pose.position.y = Robo_State_des.Y_c;
+  pose_msg.pose.position.z = 0.0; // 2D nên z = 0
 
+  // Chuyển góc Theta_c thành quaternion
+  tf2::Quaternion quat;
+  quat.setRPY(0, 0, Robo_State_des.Theta_c); // Roll = 0, Pitch = 0, Yaw = Theta_c
+  pose_msg.pose.orientation.x = quat.x();
+  pose_msg.pose.orientation.y = quat.y();
+  pose_msg.pose.orientation.z = quat.z();
+  pose_msg.pose.orientation.w = quat.w();
+  pose_pub.publish(pose_msg);
+}
+double getCurvature()
+{
+  double d[3][2];
+  for (int i = 0; i < 3; i++)
+  {
+    int k = old_nearest_point_index + i;
+    if (k >= desired_path_follow.poses.size())
+      k = desired_path_follow.poses.size();
+    d[i][0] = desired_path_follow.poses[k].pose.position.x;
+    d[i][1] = desired_path_follow.poses[k].pose.position.y;
+  }
+  double dx1x2 = (d[0][0] - d[1][0]) * (d[0][0] - d[1][0]) + (d[0][1] - d[1][1]) * (d[0][1] - d[1][1]);
+  double ta = sqrt(dx1x2);
+  double dx2x3 = (d[1][0] - d[2][0]) * (d[1][0] - d[2][0]) + (d[1][1] - d[2][1]) * (d[1][1] - d[2][1]);
+  double tb = sqrt(dx2x3);
+  double ts1 = (ta * ta) + tb * ta;
+  double ts2 = (tb * tb) + tb * ta;
+  // trong folder pp2 path_tracking may tinh
+  double a1 = d[1][0];
+  double a2 = d[0][0] * (-tb) / (ts1) + d[1][0] * (tb - ta) / (tb * ta) + d[2][0] * ta / (ts2);
+  double a3 = d[0][0] / (ts1)-d[1][0] / (ta * tb) + d[2][0] / (ts2);
+  double b1 = d[1][1];
+
+  double b2 = d[0][1] * (-tb) / (ts1) + d[1][1] * (tb - ta) / (tb * ta) + d[2][1] * ta / (ts2);
+  double b3 = d[0][1] / (ts1)-d[1][1] / (ta * tb) + d[2][1] / (ts2);
+  double tmp = a2 * a2 + b2 * b2;
+  if (tmp < 1e-6)
+  {
+    return 1;
+  }
+  double curve = (a3 * b2 - a2 * b3) / (pow(tmp, 1.5));
+
+  if (std::isnan(curve))
+  {
+    return 1;
+  }
+  curve = 1 / curve;
+  if (curve >= 1.0)
+    curve = 1.0;
+  else if (curve < -1.0)
+    curve = -1.0;
+  return curve;
+
+}
+double calDistance(int ind)
+{
+  double dx = desired_path_follow.poses[ind].pose.position.x - Robo_State_cur.X_a;
+  double dy = desired_path_follow.poses[ind].pose.position.y - Robo_State_cur.Y_a;
+  double dist = sqrt(dx * dx + dy * dy);
+  return dist;
+}
+int calLookAheadPointInd(int index, double Lf)
+{
+  int ind_now = index;
+
+  while (Lf > calDistance(ind_now))
+  {
+    if (ind_now + 1 >= desired_path_follow.poses.size())
+    {
+      break; //
+    }
+    ind_now += 1;
+  }
+  return ind_now;
+}
+double AdjustLP()
+{
+  double err_y = sqrt((Robo_State_cur.X_e * Robo_State_cur.X_e) + ((Robo_State_cur.Y_e) * Robo_State_cur.Y_e)) * sin(Robo_State_cur.Theta_e);
+
+  double curv = getCurvature();
+  // double curv2=std::min(curv, 1.0);
+  double LP = k1 * (Robo_State_cur.V_a * Robo_State_cur.V_a) + CurveGain * abs(curv) + ErrorGain * err_y + init_LP;
+  ROS_INFO("LP:%f curve:%f, error_y:%f", LP, curv, err_y);
+  
+
+  return LP;
+}
+int get_desired_path_pose()
+{
+  if (desired_path_follow.poses.empty())
+  {
+    ROS_WARN("desired_path_ is empty!");
+    return 0;
+  }
+  double min_dist = std::numeric_limits<double>::max();
+  size_t closest_idx = 0;
+  if (old_nearest_point_index == -1)
+  {
+    for (size_t i = 0; i < desired_path_follow.poses.size(); ++i)
+    {
+      double dist = calDistance(i);
+      if (dist < min_dist)
+      {
+        min_dist = dist;
+        closest_idx = i;
+        old_nearest_point_index = i;
+      }
+    }
+  }
+  else
+  {
+    closest_idx = old_nearest_point_index;
+    double distance_this_index = calDistance(closest_idx);
+    while (true)
+    {
+      if (closest_idx + 1 >= desired_path_follow.poses.size())
+      {
+        break;
+      }
+      double distance_next_index = calDistance(closest_idx + 1);
+      if (distance_this_index < distance_next_index)
+      {
+        break;
+      }
+      closest_idx = closest_idx + 1;
+      distance_this_index = distance_next_index;
+    }
+    old_nearest_point_index = closest_idx;
+  }
+  double Lf;
+  if (SMC_on == 1)
+    Lf = LookaHeadGain * Robo_State_cur.V_a + LookaHeadDis;
+  else if (SMC_on == 2)
+    Lf = AdjustLP();
+  //
+  int target_idx = (calLookAheadPointInd(closest_idx, Lf)) % desired_path_follow.poses.size();
+  Robo_State_des.X_c = desired_path_follow.poses[target_idx].pose.position.x;
+  Robo_State_des.Y_c = desired_path_follow.poses[target_idx].pose.position.y;
+  tf::Quaternion q(
+      desired_path_follow.poses[target_idx].pose.orientation.x,
+      desired_path_follow.poses[target_idx].pose.orientation.y,
+      desired_path_follow.poses[target_idx].pose.orientation.z,
+      desired_path_follow.poses[target_idx].pose.orientation.w);
+  tf::Matrix3x3 m(q);
+  double roll, pitch, yaw;
+  m.getRPY(roll, pitch, yaw);
+  Robo_State_des.Theta_c = yaw;
+  return target_idx;
+}
 void get_desired_pose()
 {
- 
+
   if (flag == 1)
   {
-    
     double r = r_path;
     double t = 60;
     Robo_State_des.X_c = r * sin(traj_counter / ctrl_rate * 2 * pi / t);
     Robo_State_des.Y_c = -r * cos(traj_counter / ctrl_rate * 2 * pi / t) + r;
-
     TransStorage(4);
-
     time_interval = sys_time_his[0] - sys_time_his[1];
 
     double X_d = 0;
     double Y_d = 0;
     X_d =
-        CentralDerivative(time_interval, 0, 0); 
+        CentralDerivative(time_interval, 0, 0);
     Y_d = CentralDerivative(time_interval, 0, 1);
     Robo_State_des.V_c =
-        sqrt(X_d * X_d + Y_d * Y_d) * 1000; 
- 
+        sqrt(X_d * X_d + Y_d * Y_d) * 1000;
+
     if (Robo_State_des.V_c >= 0.2)
     {
       Robo_State_des.V_c = 0.2;
@@ -605,7 +638,7 @@ void get_desired_pose()
 
     if ((Robo_State_des.Theta_c < (0)) &&
         (Robo_State_des.Theta_c >= (-pi / 2)) &&
-        (traj_counter > 300)) 
+        (traj_counter > 300))
     {
       Robo_State_des.Theta_c = Robo_State_des.Theta_c + 2 * pi;
     }
@@ -637,7 +670,7 @@ void get_desired_pose()
   }
   else if (flag == 2)
   {
-   
+
     double r = 0.4;
     Robo_State_des.X_c = 2 * pi * traj_counter / ctrl_rate / 120;
     Robo_State_des.Y_c = r * cos(Robo_State_des.X_c * 3.5) - r;
@@ -649,10 +682,10 @@ void get_desired_pose()
     double X_d = 0;
     double Y_d = 0;
     X_d =
-        CentralDerivative(time_interval, 0, 0); 
+        CentralDerivative(time_interval, 0, 0);
     Y_d = CentralDerivative(time_interval, 0, 1);
     Robo_State_des.V_c =
-        sqrt(X_d * X_d + Y_d * Y_d) * 1000; 
+        sqrt(X_d * X_d + Y_d * Y_d) * 1000;
     // if (Robo_State_des.V_c >= 0.2)
     // {
     //   Robo_State_des.V_c = 0.2;
@@ -677,7 +710,7 @@ void get_desired_pose()
     ROS_INFO("cos Theta_c is: %lf ", (double)Robo_State_des.Theta_c);
     TransStorage(5);
     Robo_State_des.W_c =
-        CentralDerivative(time_interval, 0, 2) * 1000; 
+        CentralDerivative(time_interval, 0, 2) * 1000;
     if (traj_counter <= 2)
     {
       Robo_State_des.W_c = 0;
@@ -704,39 +737,29 @@ double sat(double s, double eps)
     return s > 0 ? 1.0 : -1.0;
   return s / eps;
 }
-void run_ASMCmatLab()
-{
-  float l = 0.2;
-  float k1 = 10;
-  float k2 = 20;
-  float k0 = 30;
-  float kx = 1;
-  float ky = 1;
-  double x_e_dot = Robo_State_cur.V_a * std::cos(Robo_State_cur.Theta_a) - Robo_State_des.V_c * std::cos(Robo_State_des.Theta_c);
-  double y_e_dot = Robo_State_cur.V_a * std::sin(Robo_State_cur.Theta_a) - Robo_State_des.V_c * std::sin(Robo_State_des.Theta_c);
-  float s1 = Robo_State_cur.X_e + kx * x_e_dot + ky * y_e_dot + Robo_State_cur.Y_e;
-  float s2 = Robo_State_cur.Theta_e;
-  double k_v = 1.0;
-  double k_omega = 2.0;
-  double k_s1 = 0.5;
-  double k_s2 = 0.5;
-  float v = Robo_State_des.V_c * std::cos(Robo_State_cur.Theta_a - Robo_State_des.Theta_c) + k_v * s1;
-  float omega = Robo_State_des.W_c + k_omega * s2 + k_s2 * std::tanh(s2 / 0.05); // Sử dụng tanh để giảm chattering
-  Robo_State_cur.V_c = v;
-  Robo_State_cur.W_c = omega;
-  ROS_INFO("error_x :%f error_y:%f robot_state_theta_e:%f SMC_S2:%f", Robo_State_cur.X_e, Robo_State_cur.Y_e, Robo_State_cur.Theta_e, s2);
-}
 void get_err_pose()
 {
 
-  Robo_State_cur.X_e =
-      cos(Robo_State_des.Theta_c) * (Robo_State_des.X_c - Robo_State_cur.X_a) +
-      sin(Robo_State_des.Theta_c) * (Robo_State_des.Y_c - Robo_State_cur.Y_a);
-  Robo_State_cur.Y_e =
-      -sin(Robo_State_des.Theta_c) * (Robo_State_des.X_c - Robo_State_cur.X_a) +
-      cos(Robo_State_des.Theta_c) * (Robo_State_des.Y_c - Robo_State_cur.Y_a);
-  Robo_State_cur.Theta_e = (Robo_State_des.Theta_c - Robo_State_cur.Theta_a);
-  // ROS_INFO("des_yaw:%f yaw:%f ", Robo_State_des.Theta_c, Robo_State_cur.Theta_a);
+  // Robo_State_cur.X_e =
+  //     cos(Robo_State_des.Theta_c) * (Robo_State_des.X_c - Robo_State_cur.X_a) +
+  //     sin(Robo_State_des.Theta_c) * (Robo_State_des.Y_c - Robo_State_cur.Y_a);
+  // Robo_State_cur.Y_e =
+  //     -sin(Robo_State_des.Theta_c) * (Robo_State_des.X_c - Robo_State_cur.X_a) +
+  //     cos(Robo_State_des.Theta_c) * (Robo_State_des.Y_c - Robo_State_cur.Y_a);
+  // Robo_State_cur.Theta_e = (Robo_State_des.Theta_c - Robo_State_cur.Theta_a);
+  Robo_State_cur.X_e = Robo_State_des.X_c - Robo_State_cur.X_a;
+  Robo_State_cur.Y_e = Robo_State_des.Y_c - Robo_State_cur.Y_a;
+  // if(Robo_State_cur.X_e==0)Robo_State_cur.Theta_e=0;
+  if (Robo_State_cur.Theta_a > pi)
+  {
+    Robo_State_cur.Theta_a = Robo_State_cur.Theta_a - 2 * pi;
+  }
+  else if (Robo_State_cur.Theta_a < -pi)
+  {
+    Robo_State_cur.Theta_a = Robo_State_cur.Theta_a + 2 * pi;
+  }
+  Robo_State_cur.Theta_e = atan2(Robo_State_cur.Y_e, Robo_State_cur.X_e) - Robo_State_cur.Theta_a;
+  // ROS_INFO("des_yaw:%f yaw:%f ", atan2(Robo_State_cur.Y_e, Robo_State_cur.X_e), Robo_State_cur.Theta_a);
 
   if (flag == 1)
   {
@@ -763,7 +786,7 @@ void TransStorage(int tran_signature)
   if (tran_signature == 0)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       X_cStor[i + 1] = X_cStor[i];
       Y_cStor[i + 1] = Y_cStor[i];
@@ -776,7 +799,7 @@ void TransStorage(int tran_signature)
   else if (tran_signature == 1)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       V_cStor[i + 1] = V_cStor[i];
       W_cStor[i + 1] = W_cStor[i];
@@ -808,7 +831,7 @@ void TransStorage(int tran_signature)
   else if (tran_signature == 4)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       X_cStor[i + 1] = X_cStor[i];
       Y_cStor[i + 1] = Y_cStor[i];
@@ -828,7 +851,7 @@ void TransStorage(int tran_signature)
   else if (tran_signature == 6)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       Slip_cStor[i + 1] = Slip_cStor[i];
     }
@@ -837,14 +860,13 @@ void TransStorage(int tran_signature)
   else if (tran_signature == 7)
   {
     for (int i = STOR_LEN - 2; i >= 0;
-         i--) 
+         i--)
     {
       Slip_cvStor[i + 1] = Slip_cvStor[i];
     }
     Slip_cvStor[0] = slip_cv;
   }
 }
-
 
 double CentralDerivative(double time, int i, int signature)
 {
@@ -878,84 +900,6 @@ double CentralDerivative(double time, int i, int signature)
     return 0;
 }
 
-
-double TrapezoidIntegral(double time, int i, int signature)
-{
-  double intergral = 0;
-  if (signature == 0)
-  {
-    intergral = (ASMC_dD1[i] + ASMC_dD1[i + 1]) *
-                (time * 0.5); /// 
-  }
-  else if (signature == 1)
-  {
-    intergral = (ASMC_dD2[i] + ASMC_dD2[i + 1]) *
-                (time * 0.5); /// 
-  }
-  return intergral;
-}
-
-
-double CtrlDataFilter(int sign)
-{
-  double Filter_Result = 0;
-
-  double temp = 0;
-  int extreme = 2; 
-  int i = 0;
-  if (sign == 0)
-  {
-    if (Filter_Len <= 1)
-    {
-      Filter_Result = slip_c;
-    }
-    else if (Filter_Len > 1)
-    {
-      for (i = Filter_Len - 2; i >= 0; i--)
-   
-      {
-        Fil_Slip_CStor[i + 1] = Fil_Slip_CStor[i];
-      }
-      Fil_Slip_CStor[0] = slip_c;
-
-      memcpy(Fil_Slip_C_Sort, Fil_Slip_CStor, sizeof(Fil_Slip_CStor));
-      std::sort(Fil_Slip_C_Sort, Fil_Slip_C_Sort + 10);
-      for (int j = extreme; j < (Filter_Len - 2); j++)
-      {
-        temp += Fil_Slip_C_Sort[j];
-      }
-      Filter_Result = temp / (Filter_Len - 2 * extreme);
-    }
-  }
-  else if (sign == 1)
-  {
-    if (Filter_Len <= 1)
-    {
-      Filter_Result = slip_cv;
-    }
-    else if (Filter_Len > 1)
-    {
-      for (i = Filter_Len - 2; i >= 0; i--)
-     
-      {
-        Fil_Slip_CVStor[i + 1] = Fil_Slip_CVStor[i];
-      }
-      Fil_Slip_CVStor[0] = slip_cv;
-
-      memcpy(Fil_Slip_CV_Sort, Fil_Slip_CVStor, sizeof(Fil_Slip_CVStor));
-      std::sort(Fil_Slip_CV_Sort, Fil_Slip_CV_Sort + 10);
-
-      for (int j = extreme; j < (Filter_Len - 2); j++)
-      {
-        temp += Fil_Slip_CV_Sort[j];
-      }
-      Filter_Result = temp / (Filter_Len - 2 * extreme);
-    }
-  }
-
-  return Filter_Result;
-}
-
 double sysLocalTime()
 {
   struct timeval tv;
@@ -965,195 +909,6 @@ double sysLocalTime()
   return time_now = tv.tv_sec * 1000 + tv.tv_usec / 1000; // ms
 }
 
-
-void get_slip()
-{
-
-
-  double V_c = Robo_State_des.V_c;
-  double V_a = Robo_State_cur.V_a;
-
-  if (V_c >= 0.00001)
-  {
-    slip_c =
-        (V_c - V_a) /
-        V_c;
-    if (slip_c <= 0)
-    {
-      slip_c = 0;
-    }
-  }
-  else
-  {
-    slip_c = 0;
-  }
-
-  TransStorage(6);
-
-  time_interval = sys_time_his[0] - sys_time_his[1];
-  if ((V_c >= 0.0001) || (V_a >= 0.0001))
-  {
-    slip_cv = CentralDerivative(time_interval, 0, 3);
-  }
-  else
-  {
-    slip_cv = 0;
-  }
-  TransStorage(7);
-
-  fil_slip_c = CtrlDataFilter(0);  
-  fil_slip_cv = CtrlDataFilter(1); 
-}
-void slip_compen()
-{
-}
-void constrainABS(double &input, double range)
-{
-  if (input >= range)
-    input = range;
-}
-
-
-void get_ASMC_D()
-{
-  double c1 = 1;
-  double c2 = 1;
-
-  static double error_ve = 0;
-  static double error_we = 0;
-  error_ve += Robo_State_cur.V_e;
-  error_we += Robo_State_cur.W_e;
-  SMC_S1 = Robo_State_cur.V_e + c1 * error_ve;
-  SMC_S2 = Robo_State_cur.W_e + c2 * error_we;
-}
-void run_A_SMC() {}
-
-void set_paras()
-{
- 
-  //  for circle tracking
-  SMC_paras1.K_pa11 = 0.005;
-  SMC_paras1.K_pa12 = 0.005;
-  SMC_paras1.K_pa13 = 0.01;
-
-  SMC_paras1.K_pa21 = 0.1;
-  SMC_paras1.K_pa22 = 0.1;
-  // SMC_paras1.K_pa23 = 1;
-  SMC_paras1.K_pa23 = 1;
-
-  SMC_paras1.A_pa11 = 0.05;
-  SMC_paras1.A_pa12 = 1.5;
-
-  SMC_paras1.A_pa21 = 0.1;
-  SMC_paras1.A_pa22 = 2;
-
-  SMC_paras1.Mu_pa11 = 0.0005;
-  SMC_paras1.Mu_pa12 = 0.0005;
-  SMC_paras1.Mu_pa21 = 0.002;
-  SMC_paras1.Mu_pa22 = 0.002;
-
-
-  // for cosine tracking
-  SMC_paras2.K_pa11 = 0.005;
-  SMC_paras2.K_pa12 = 0.005;
-  SMC_paras2.K_pa13 = 0.01;
-  SMC_paras2.K_pa21 = 0.1;
-  SMC_paras2.K_pa22 = 0.1;
-  SMC_paras2.K_pa23 = 1;
-
-  SMC_paras2.A_pa11 = 0.1;
-  SMC_paras2.A_pa12 = 0.1;
-  SMC_paras2.A_pa21 = 2;
-  SMC_paras2.A_pa22 = 2;
-  SMC_paras2.Mu_pa11 = 0.001;
-  SMC_paras2.Mu_pa12 = 0.001;
-  SMC_paras2.Mu_pa21 = 0.004;
-  SMC_paras2.Mu_pa22 = 0.004;
-}
-void get_SMC_S()
-{
-  double para_0 = 0.5;
-  double para_1 = 0.75;
-  double para_2 = 1.25;
-  Robo_State_cur.dX_e = Robo_State_cur.dX_a * cos(Robo_State_des.Theta_c) + Robo_State_cur.dY_a * sin(Robo_State_des.Theta_c) + Robo_State_des.W_a * Robo_State_cur.Y_e - Robo_State_des.V_a;
-  Robo_State_cur.dTheta_e = (Robo_State_cur.W_a - Robo_State_des.W_a);
-  Robo_State_cur.dY_e = -Robo_State_cur.dX_a * sin(Robo_State_des.Theta_c) + Robo_State_cur.dY_a * cos(Robo_State_des.Theta_c) - Robo_State_des.W_a * Robo_State_cur.Y_e;
-  SMC_S1 = Robo_State_cur.dX_e + Robo_State_cur.X_e * para_1;
-  SMC_S2 = Robo_State_cur.dTheta_e + para_2 * Robo_State_cur.Theta_e + para_0 * Sgn(Robo_State_cur.Theta_e, 0.00006) * fabs(Robo_State_cur.Y_e);
-  double D1 = -Robo_State_cur.dX_a * Robo_State_cur.dTheta_e * sin(Robo_State_des.Theta_c) + Robo_State_cur.dY_a * Robo_State_cur.dTheta_e * cos(Robo_State_des.Theta_c) - Robo_State_des.W_a * Robo_State_cur.dY_e - para_1 * Robo_State_cur.dX_e - Robo_State_cur.acc_theta * Robo_State_cur.Y_e;
-  double D2 = Robo_State_cur.acc_theta - para_2 * Robo_State_cur.dTheta_e - para_0 * Sgn(Robo_State_cur.Theta_e, 0.00006) * Robo_State_cur.dY_e * Sgn(Robo_State_cur.Y_e, 0.00006);
-  double R = 1;
-  double m = 1;
-  double L = 1;
-  double I = 1;
-  double alphaNorm = 1 / R * m;
-  double betaNorm = L / R * I;
-  double ueq1 = -D1 / (alphaNorm * cos(Robo_State_cur.Theta_e));
-  double ueq2 = -D2 / (betaNorm);
-  double q1 = 0.01;
-  double q2 = 0.01;
-  double p1 = 0.1;
-  double p2 = 0.1;
-  double k1 = (q1 * SMC_S1 + p1 * saturation(SMC_S1 / 0.01) - D1) / cos(Robo_State_cur.Theta_e);
-  double k2 = (q2 * SMC_S2 + p2 * saturation(SMC_S2 / 0.01) - D2);
-  double u1 = ueq1 - k1 * saturation(SMC_S1 / 0.01);
-  double u2 = ueq2 - k2 * saturation(SMC_S2 / 0.01);
-  double acc_vc = u2;
-  double acc_wc = u1;
-  double dt = 1.0 / 15.0;
-  ROS_INFO("error_x :%f error_y:%f robot_state_theta_e:%f smc:%f, vx:%f, w:%f", Robo_State_cur.X_e, Robo_State_cur.Y_e, Robo_State_cur.Theta_e, SMC_S2,acc_vc,acc_wc);
-  if(acc_vc>=0.2)acc_vc=0.2;
-  else if(acc_vc<=-0.2)acc_vc=-0.2;
-  if(acc_wc>=0.5)acc_wc=0.5;
-  else if(acc_wc<-0.5)acc_wc=-0.5;
-  Robo_State_cur.V_c = -acc_vc;
-  Robo_State_cur.W_c = -acc_wc;
-  // double beta=10.0;
-  // SMC_S1 = Robo_State_cur.V_e + beta * Robo_State_cur.X_e;
-  // SMC_S2 = Robo_State_cur.W_e + 10 * (Robo_State_cur.Y_e + Robo_State_cur.Theta_e);
-}
-
-
-double Sgn(double s, double epsilon)
-{
-  double r = 0;
- 
-  if ((fabs(s) < epsilon) && (epsilon < 1e-30))
-    return 0;
-
-  if (s < -epsilon)
-    r = -1;
-  else if (s > epsilon)
-    r = 1;
-  return r;
-}
-
-double saturation(double factor)
-{
-  double r = factor;
-  if (r > 1)
-  {
-    r = Sgn(r, 0.00001);
-  }
-  return r;
-}
-
-double Sgn2(double s, double epsilon)
-{
-  double r = 0;
-
-  if ((fabs(s) < epsilon) && (epsilon < 1e-30))
-    return 0;
-
-  if (s < -epsilon)
-    r = -1;
-  else if (s > epsilon)
-    r = 1;
-  else
-    r = s / epsilon;
-  return r;
-}
-
 std::string int2string(int value)
 {
   std::stringstream ss;
@@ -1161,9 +916,8 @@ std::string int2string(int value)
   return ss.str();
 }
 
-
 void GetEulerAngles(double qx, double qy, double qz, double qw, double &pitch,
-                    double &roll, double &yaw) 
+                    double &roll, double &yaw)
 {
   const double w2 = qw * qw;
   const double x2 = qx * qx;

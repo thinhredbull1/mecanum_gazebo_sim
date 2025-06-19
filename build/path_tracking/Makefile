@@ -90,6 +90,17 @@ list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
 
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
+
 # Special rule for the target install/local
 install/local: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
@@ -102,28 +113,6 @@ install/local/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local/fast
 
-# Special rule for the target test
-test:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
-	/usr/bin/ctest --force-new-ctest-process $(ARGS)
-.PHONY : test
-
-# Special rule for the target test
-test/fast: test
-
-.PHONY : test/fast
-
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -134,6 +123,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+
+.PHONY : test/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -363,6 +363,21 @@ rosgraph_msgs_generate_messages_nodejs/fast:
 .PHONY : rosgraph_msgs_generate_messages_nodejs/fast
 
 # Convenience name for target.
+path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/rule:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+
+# Convenience name for target.
+roscpp_generate_messages_eus: path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+
+.PHONY : roscpp_generate_messages_eus
+
+# fast build rule for target.
+roscpp_generate_messages_eus/fast:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build
+.PHONY : roscpp_generate_messages_eus/fast
+
+# Convenience name for target.
 path_tracking/CMakeFiles/sensor_msgs_generate_messages_eus.dir/rule:
 	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/sensor_msgs_generate_messages_eus.dir/rule
 .PHONY : path_tracking/CMakeFiles/sensor_msgs_generate_messages_eus.dir/rule
@@ -528,6 +543,36 @@ geometry_msgs_generate_messages_eus/fast:
 .PHONY : geometry_msgs_generate_messages_eus/fast
 
 # Convenience name for target.
+path_tracking/CMakeFiles/FPPControl.dir/rule:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/FPPControl.dir/rule
+.PHONY : path_tracking/CMakeFiles/FPPControl.dir/rule
+
+# Convenience name for target.
+FPPControl: path_tracking/CMakeFiles/FPPControl.dir/rule
+
+.PHONY : FPPControl
+
+# fast build rule for target.
+FPPControl/fast:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/FPPControl.dir/build.make path_tracking/CMakeFiles/FPPControl.dir/build
+.PHONY : FPPControl/fast
+
+# Convenience name for target.
+path_tracking/CMakeFiles/ModelPredictiveControl.dir/rule:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/ModelPredictiveControl.dir/rule
+.PHONY : path_tracking/CMakeFiles/ModelPredictiveControl.dir/rule
+
+# Convenience name for target.
+ModelPredictiveControl: path_tracking/CMakeFiles/ModelPredictiveControl.dir/rule
+
+.PHONY : ModelPredictiveControl
+
+# fast build rule for target.
+ModelPredictiveControl/fast:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/ModelPredictiveControl.dir/build.make path_tracking/CMakeFiles/ModelPredictiveControl.dir/build
+.PHONY : ModelPredictiveControl/fast
+
+# Convenience name for target.
 path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/rule:
 	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/rule
 .PHONY : path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/rule
@@ -542,20 +587,59 @@ rosgraph_msgs_generate_messages_cpp/fast:
 	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build.make path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build
 .PHONY : rosgraph_msgs_generate_messages_cpp/fast
 
-# Convenience name for target.
-path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/rule:
-	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f CMakeFiles/Makefile2 path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/rule
-.PHONY : path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+src/FPP.o: src/FPP.cpp.o
 
-# Convenience name for target.
-roscpp_generate_messages_eus: path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+.PHONY : src/FPP.o
 
-.PHONY : roscpp_generate_messages_eus
+# target to build an object file
+src/FPP.cpp.o:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/FPPControl.dir/build.make path_tracking/CMakeFiles/FPPControl.dir/src/FPP.cpp.o
+.PHONY : src/FPP.cpp.o
 
-# fast build rule for target.
-roscpp_generate_messages_eus/fast:
-	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build
-.PHONY : roscpp_generate_messages_eus/fast
+src/FPP.i: src/FPP.cpp.i
+
+.PHONY : src/FPP.i
+
+# target to preprocess a source file
+src/FPP.cpp.i:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/FPPControl.dir/build.make path_tracking/CMakeFiles/FPPControl.dir/src/FPP.cpp.i
+.PHONY : src/FPP.cpp.i
+
+src/FPP.s: src/FPP.cpp.s
+
+.PHONY : src/FPP.s
+
+# target to generate assembly for a file
+src/FPP.cpp.s:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/FPPControl.dir/build.make path_tracking/CMakeFiles/FPPControl.dir/src/FPP.cpp.s
+.PHONY : src/FPP.cpp.s
+
+src/MPC.o: src/MPC.cpp.o
+
+.PHONY : src/MPC.o
+
+# target to build an object file
+src/MPC.cpp.o:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/ModelPredictiveControl.dir/build.make path_tracking/CMakeFiles/ModelPredictiveControl.dir/src/MPC.cpp.o
+.PHONY : src/MPC.cpp.o
+
+src/MPC.i: src/MPC.cpp.i
+
+.PHONY : src/MPC.i
+
+# target to preprocess a source file
+src/MPC.cpp.i:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/ModelPredictiveControl.dir/build.make path_tracking/CMakeFiles/ModelPredictiveControl.dir/src/MPC.cpp.i
+.PHONY : src/MPC.cpp.i
+
+src/MPC.s: src/MPC.cpp.s
+
+.PHONY : src/MPC.s
+
+# target to generate assembly for a file
+src/MPC.cpp.s:
+	cd /home/thinh/nexus_4wd_mecanum_simulator/build && $(MAKE) -f path_tracking/CMakeFiles/ModelPredictiveControl.dir/build.make path_tracking/CMakeFiles/ModelPredictiveControl.dir/src/MPC.cpp.s
+.PHONY : src/MPC.cpp.s
 
 src/PurePursuit.o: src/PurePursuit.cpp.o
 
@@ -593,6 +677,7 @@ help:
 	@echo "... install/strip"
 	@echo "... install"
 	@echo "... list_install_components"
+	@echo "... edit_cache"
 	@echo "... rosgraph_msgs_generate_messages_py"
 	@echo "... roscpp_generate_messages_lisp"
 	@echo "... geometry_msgs_generate_messages_cpp"
@@ -607,6 +692,8 @@ help:
 	@echo "... roscpp_generate_messages_py"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... rosgraph_msgs_generate_messages_nodejs"
+	@echo "... rebuild_cache"
+	@echo "... roscpp_generate_messages_eus"
 	@echo "... sensor_msgs_generate_messages_eus"
 	@echo "... roscpp_generate_messages_cpp"
 	@echo "... sensor_msgs_generate_messages_lisp"
@@ -618,11 +705,16 @@ help:
 	@echo "... PurePursuitControl"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
+	@echo "... FPPControl"
+	@echo "... ModelPredictiveControl"
 	@echo "... rosgraph_msgs_generate_messages_cpp"
 	@echo "... test"
-	@echo "... edit_cache"
-	@echo "... roscpp_generate_messages_eus"
-	@echo "... rebuild_cache"
+	@echo "... src/FPP.o"
+	@echo "... src/FPP.i"
+	@echo "... src/FPP.s"
+	@echo "... src/MPC.o"
+	@echo "... src/MPC.i"
+	@echo "... src/MPC.s"
 	@echo "... src/PurePursuit.o"
 	@echo "... src/PurePursuit.i"
 	@echo "... src/PurePursuit.s"

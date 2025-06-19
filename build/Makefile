@@ -115,8 +115,8 @@ rebuild_cache/fast: rebuild_cache
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -454,6 +454,19 @@ rosgraph_msgs_generate_messages_nodejs/fast:
 .PHONY : rosgraph_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
+# Target rules for targets named roscpp_generate_messages_eus
+
+# Build rule for target.
+roscpp_generate_messages_eus: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 roscpp_generate_messages_eus
+.PHONY : roscpp_generate_messages_eus
+
+# fast build rule for target.
+roscpp_generate_messages_eus/fast:
+	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build
+.PHONY : roscpp_generate_messages_eus/fast
+
+#=============================================================================
 # Target rules for targets named sensor_msgs_generate_messages_eus
 
 # Build rule for target.
@@ -597,6 +610,32 @@ geometry_msgs_generate_messages_eus/fast:
 .PHONY : geometry_msgs_generate_messages_eus/fast
 
 #=============================================================================
+# Target rules for targets named FPPControl
+
+# Build rule for target.
+FPPControl: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 FPPControl
+.PHONY : FPPControl
+
+# fast build rule for target.
+FPPControl/fast:
+	$(MAKE) -f path_tracking/CMakeFiles/FPPControl.dir/build.make path_tracking/CMakeFiles/FPPControl.dir/build
+.PHONY : FPPControl/fast
+
+#=============================================================================
+# Target rules for targets named ModelPredictiveControl
+
+# Build rule for target.
+ModelPredictiveControl: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ModelPredictiveControl
+.PHONY : ModelPredictiveControl
+
+# fast build rule for target.
+ModelPredictiveControl/fast:
+	$(MAKE) -f path_tracking/CMakeFiles/ModelPredictiveControl.dir/build.make path_tracking/CMakeFiles/ModelPredictiveControl.dir/build
+.PHONY : ModelPredictiveControl/fast
+
+#=============================================================================
 # Target rules for targets named rosgraph_msgs_generate_messages_cpp
 
 # Build rule for target.
@@ -608,19 +647,6 @@ rosgraph_msgs_generate_messages_cpp: cmake_check_build_system
 rosgraph_msgs_generate_messages_cpp/fast:
 	$(MAKE) -f path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build.make path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build
 .PHONY : rosgraph_msgs_generate_messages_cpp/fast
-
-#=============================================================================
-# Target rules for targets named roscpp_generate_messages_eus
-
-# Build rule for target.
-roscpp_generate_messages_eus: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 roscpp_generate_messages_eus
-.PHONY : roscpp_generate_messages_eus
-
-# fast build rule for target.
-roscpp_generate_messages_eus/fast:
-	$(MAKE) -f path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build.make path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir/build
-.PHONY : roscpp_generate_messages_eus/fast
 
 # Help Target
 help:
@@ -657,6 +683,7 @@ help:
 	@echo "... roscpp_generate_messages_py"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... rosgraph_msgs_generate_messages_nodejs"
+	@echo "... roscpp_generate_messages_eus"
 	@echo "... sensor_msgs_generate_messages_eus"
 	@echo "... roscpp_generate_messages_cpp"
 	@echo "... sensor_msgs_generate_messages_lisp"
@@ -668,8 +695,9 @@ help:
 	@echo "... PurePursuitControl"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
+	@echo "... FPPControl"
+	@echo "... ModelPredictiveControl"
 	@echo "... rosgraph_msgs_generate_messages_cpp"
-	@echo "... roscpp_generate_messages_eus"
 .PHONY : help
 
 

@@ -38,6 +38,7 @@
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/install/strip.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/install.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/list_install_components.dir
+/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/edit_cache.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_py.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/roscpp_generate_messages_lisp.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/geometry_msgs_generate_messages_cpp.dir
@@ -52,6 +53,8 @@
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/roscpp_generate_messages_py.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/std_msgs_generate_messages_lisp.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir
+/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/rebuild_cache.dir
+/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/sensor_msgs_generate_messages_eus.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/roscpp_generate_messages_cpp.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/sensor_msgs_generate_messages_lisp.dir
@@ -63,8 +66,7 @@
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/PurePursuitControl.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/std_msgs_generate_messages_nodejs.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/geometry_msgs_generate_messages_eus.dir
+/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/FPPControl.dir
+/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/ModelPredictiveControl.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir
 /home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/test.dir
-/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/edit_cache.dir
-/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/roscpp_generate_messages_eus.dir
-/home/thinh/nexus_4wd_mecanum_simulator/build/path_tracking/CMakeFiles/rebuild_cache.dir
